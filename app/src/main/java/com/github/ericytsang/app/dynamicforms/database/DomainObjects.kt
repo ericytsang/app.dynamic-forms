@@ -1,4 +1,4 @@
-package com.github.ericytsang.app.dynamicforms.data
+package com.github.ericytsang.app.dynamicforms.database
 
 import android.util.Patterns
 import androidx.room.ColumnInfo
