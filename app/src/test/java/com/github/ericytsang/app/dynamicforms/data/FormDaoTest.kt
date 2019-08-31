@@ -1,6 +1,7 @@
 package com.github.ericytsang.app.dynamicforms.data
 
 import androidx.test.platform.app.InstrumentationRegistry
+import com.github.ericytsang.app.dynamicforms.utils.TestDatabase
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test

@@ -1,4 +1,4 @@
-package com.github.ericytsang.app.dynamicforms.data
+package com.github.ericytsang.app.dynamicforms.utils
 
 import android.content.Context
 import androidx.room.Room
