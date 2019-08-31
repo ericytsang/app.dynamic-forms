@@ -43,7 +43,7 @@ dependencies {
 
     // Room (object-relational mapping)
     implementation "androidx.room:room-runtime:2.2.0-beta01"
-    annotationProcessor "androidx.room:room-compiler:2.2.0-beta01"
+    kapt "androidx.room:room-compiler:2.2.0-beta01"
     androidTestImplementation "androidx.room:room-testing:2.2.0-beta01"
 
     // Testing
@@ -51,5 +51,6 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.3'
     testImplementation 'androidx.arch.core:core-testing:2.0.1'
     androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
