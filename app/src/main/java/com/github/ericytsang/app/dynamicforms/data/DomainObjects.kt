@@ -16,6 +16,14 @@ data class LocalFile(val filePath: File)
     }
 }
 
+data class Url(val url:String)
+{
+    init
+    {
+        require(Patterns.WEB_URL.matcher(url).matches()) {"malformed url: $url"}
+    }
+}
+
 @Entity
 data class Form(
         @PrimaryKey(autoGenerate = true)
