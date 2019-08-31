@@ -34,6 +34,8 @@ data class Url(val url:String)
     }
 }
 
+
+
 // room database
 @Database(
         entities = [
@@ -59,6 +61,9 @@ abstract class FormDao
 
     @Query("SELECT * FROM Form")
     abstract fun selectAll():List<Form>
+
+    @Query("SELECT * FROM Form WHERE id = :id")
+    abstract fun selectOne(id:Long):Form?
 
     @Update(entity = Form::class, onConflict = OnConflictStrategy.ABORT)
     abstract fun update(form:Form)

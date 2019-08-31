@@ -17,22 +17,55 @@ class FormDaoTest
 
     private val dao = database.database.formDao()
 
-    init
-    {
-        database.database.formDao().insert(
-                FormValues(LocalFile("/"),Url("https://headcheckhealth.com")),
-                FormValues(LocalFile("/"),Url("https://headcheckhealth.com")),
-                FormValues(LocalFile("/"),Url("https://headcheckhealth.com")))
-    }
+    private val testForms = listOf(
+        FormValues(LocalFile("/"),Url("https://headcheckhealth.com")),
+        FormValues(LocalFile("/"),Url("https://headcheckhealth.com")),
+        FormValues(LocalFile("/"),Url("https://headcheckhealth.com")))
+        .map {
+            Form(
+                database.database.formDao().insert(it),
+                it.imageFilePath,
+                it.imageUrl)
+        }
 
     @Test
     fun select_all_returns_all_rows()
     {
         assertEquals(
             dao.selectAll(),
-            listOf(
-                Form(1,LocalFile("/"),Url("https://headcheckhealth.com")),
-                Form(2,LocalFile("/"),Url("https://headcheckhealth.com")),
-                Form(3,LocalFile("/"),Url("https://headcheckhealth.com"))))
+            testForms)
+    }
+
+    @Test
+    fun delete_deletes_a_row()
+    {
+        dao.delete(testForms[1].pk)
+        assertEquals(
+            dao.selectAll().map {it.pk},
+            listOf(testForms[0].pk,testForms[2].pk))
+    }
+
+    @Test
+    fun update_updates_a_row()
+    {
+        val toUpdate = testForms[2].copy(imageUrl = Url("https://github.com"))
+        dao.update(toUpdate)
+        assertEquals(
+            dao.selectOne(toUpdate.id),
+            toUpdate)
+    }
+
+    @Test
+    fun insert_adds_a_row()
+    {
+        val toInsert = FormValues(LocalFile("/"),Url("https://github.com"))
+        val id = dao.insert(toInsert)
+        val insertedRow = Form(id,toInsert.imageFilePath,toInsert.imageUrl)
+        assertEquals(
+            dao.selectOne(id),
+            insertedRow)
+        assertEquals(
+            dao.selectAll(),
+            testForms+insertedRow)
     }
 }
