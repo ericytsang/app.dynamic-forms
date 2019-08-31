@@ -1,8 +1,9 @@
 package com.github.ericytsang.app.dynamicforms.data
 
-import com.github.ericytsang.app.dynamicforms.data.Url
 import org.hamcrest.core.StringContains
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -14,7 +15,7 @@ class UrlTest
     fun cannot_create_malformed_urls()
     {
         // should throw exception when url is instantiated with invalid data
-        val exception = kotlin.runCatching {
+        val exception = runCatching {
             Url("malformed url")
         }.exceptionOrNull()
 
