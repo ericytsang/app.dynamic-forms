@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [
+        Image::class,
         Form::class,
         FormField.TextFormField::class,
         FormField.DateFormField::class],
@@ -13,4 +14,5 @@ import androidx.room.RoomDatabase
 abstract class AppDatabase:RoomDatabase()
 {
     abstract fun formDao():FormDao
+    abstract fun imageDao():ImageDao
 }

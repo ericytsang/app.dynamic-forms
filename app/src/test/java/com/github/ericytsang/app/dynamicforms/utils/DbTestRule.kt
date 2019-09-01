@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
-class TestDatabase<DB:RoomDatabase>(context:Context,databaseClass:Class<DB>):
+class DbTestRule<DB:RoomDatabase>(context:Context,databaseClass:Class<DB>):
     TestWatcher()
 {
     val database = Room.inMemoryDatabaseBuilder(
