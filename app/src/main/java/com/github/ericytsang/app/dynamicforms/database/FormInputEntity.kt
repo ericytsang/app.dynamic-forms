@@ -14,7 +14,7 @@ sealed class FormField
     @Entity(
         foreignKeys = [
             ForeignKey(
-                entity = Form::class,
+                entity = FormEntity::class,
                 parentColumns = ["id"],
                 childColumns = ["formId"],
                 onDelete = ForeignKey.CASCADE
@@ -33,7 +33,7 @@ sealed class FormField
     @Entity(
         foreignKeys = [
             ForeignKey(
-                entity = Form::class,
+                entity = FormEntity::class,
                 parentColumns = ["id"],
                 childColumns = ["formId"],
                 onDelete = ForeignKey.CASCADE

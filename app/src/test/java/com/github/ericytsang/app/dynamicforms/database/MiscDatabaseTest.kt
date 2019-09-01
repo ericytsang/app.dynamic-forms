@@ -20,23 +20,11 @@ class MiscDatabaseTest
     private val dao = dbTestRule.database.formDao()
 
     private val testForms = listOf(
-        FormValues(
-            "url",
-            "Title#1",
-            "Description#1"
-        ),
-        FormValues(
-            "url",
-            "Title#2",
-            "Description#2"
-        ),
-        FormValues(
-            "url",
-            "Title#3",
-            "Description#3"
-        )
+        FormEntity.Values("url","Title#1","Description#1"),
+        FormEntity.Values("url","Title#2","Description#2"),
+        FormEntity.Values("url","Title#3","Description#3")
     )
-        .map {it.toEntity(dao.insert(it))}
+        .map {FormEntity(dao.insert(it),it)}
 
     @Test
     fun transaction_can_roll_back_when_exception()

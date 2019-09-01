@@ -5,8 +5,8 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [
-        Image::class,
-        Form::class,
+        ImageEntity::class,
+        FormEntity::class,
         FormField.TextFormField::class,
         FormField.DateFormField::class],
     version = 1
