@@ -20,13 +20,13 @@ data class FormEntity(
 
     data class Values(
 
-        /** @see com.github.ericytsang.app.dynamicforms.repository.FormValues.imageUrl */
+        /** @see com.github.ericytsang.app.dynamicforms.repository.Form.Values.imageUrl */
         val imageUrl:String,
 
-        /** @see com.github.ericytsang.app.dynamicforms.repository.FormValues.title */
+        /** @see com.github.ericytsang.app.dynamicforms.repository.Form.Values.title */
         val title:String,
 
-        /** @see com.github.ericytsang.app.dynamicforms.repository.FormValues.description */
+        /** @see com.github.ericytsang.app.dynamicforms.repository.Form.Values.description */
         val description:String
     )
 }
