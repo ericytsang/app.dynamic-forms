@@ -22,7 +22,10 @@ class UrlTest
 
         // then it should throw an exception
         assert(exception is IllegalArgumentException) {"exception was: ${exception?.printStackTrace()}"}
-        assertThat(exception?.message, StringContains("malformed url: malformed url"))
+        assertThat(
+            exception?.message,
+            StringContains("malformed url: malformed url")
+        )
     }
 
     @Test
@@ -46,15 +49,17 @@ class UrlTest
     fun same_url_instances_are_equal()
     {
         assertEquals(
-                Url("https://headcheckhealth.com"),
-                Url("https://headcheckhealth.com"))
+            Url("https://headcheckhealth.com"),
+            Url("https://headcheckhealth.com")
+        )
     }
 
     @Test
     fun different_url_instances_are_not_equal()
     {
         assertNotEquals(
-                Url("https://githum.com"),
-                Url("https://headcheckhealth.com"))
+            Url("https://githum.com"),
+            Url("https://headcheckhealth.com")
+        )
     }
 }

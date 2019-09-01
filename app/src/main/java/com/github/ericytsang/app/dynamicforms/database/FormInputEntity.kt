@@ -11,33 +11,41 @@ sealed class FormField
     abstract val formId:Long
     abstract val isRequired:Boolean
 
-    @Entity(foreignKeys = [
-        ForeignKey(
-            entity = Form::class,
-            parentColumns = ["id"],
-            childColumns = ["formId"],
-            onDelete = ForeignKey.CASCADE)])
+    @Entity(
+        foreignKeys = [
+            ForeignKey(
+                entity = Form::class,
+                parentColumns = ["id"],
+                childColumns = ["formId"],
+                onDelete = ForeignKey.CASCADE
+            )]
+    )
     data class TextFormField(
         @PrimaryKey(autoGenerate = true)
         override val id:Long,
         @ColumnInfo(index = true)
         override val formId:Long,
         override val isRequired:Boolean,
-        val value:String)
-        :FormField()
+        val value:String
+    ):
+        FormField()
 
-    @Entity(foreignKeys = [
-        ForeignKey(
-            entity = Form::class,
-            parentColumns = ["id"],
-            childColumns = ["formId"],
-            onDelete = ForeignKey.CASCADE)])
+    @Entity(
+        foreignKeys = [
+            ForeignKey(
+                entity = Form::class,
+                parentColumns = ["id"],
+                childColumns = ["formId"],
+                onDelete = ForeignKey.CASCADE
+            )]
+    )
     data class DateFormField(
         @PrimaryKey(autoGenerate = true)
         override val id:Long,
         @ColumnInfo(index = true)
         override val formId:Long,
         override val isRequired:Boolean,
-        val value:Long)
-        :FormField()
+        val value:Long
+    ):
+        FormField()
 }

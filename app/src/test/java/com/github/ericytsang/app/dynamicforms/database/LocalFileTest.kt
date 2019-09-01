@@ -12,5 +12,6 @@ class LocalFileTest
     @Test
     @Ignore("todo: mock the filesystem!?")
     fun mock_the_filesystem()
-    {}
+    {
+    }
 }
