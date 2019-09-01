@@ -1,7 +1,9 @@
 package com.github.ericytsang.app.dynamicforms.database
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.ericytsang.app.dynamicforms.utils.DbTestRule
+import com.github.ericytsang.app.dynamicforms.utils.awaitValue
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -16,6 +18,9 @@ class MiscDatabaseTest
         InstrumentationRegistry.getInstrumentation().targetContext,
         AppDatabase::class.java
     )
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private val dao = dbTestRule.database.formDao()
 
@@ -43,6 +48,6 @@ class MiscDatabaseTest
             // ignore
         }
 
-        Assert.assertEquals(testForms,dao.selectAll())
+        Assert.assertEquals(testForms,dao.selectAll().awaitValue())
     }
 }

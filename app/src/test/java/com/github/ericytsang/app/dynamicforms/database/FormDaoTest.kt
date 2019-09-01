@@ -1,8 +1,10 @@
 package com.github.ericytsang.app.dynamicforms.database
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.ericytsang.app.dynamicforms.database.FormEntity.*
 import com.github.ericytsang.app.dynamicforms.utils.DbTestRule
+import com.github.ericytsang.app.dynamicforms.utils.awaitValue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -18,6 +20,9 @@ class FormDaoTest
         AppDatabase::class.java
     )
 
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
     private val dao = dbTestRule.database.formDao()
 
     private val testForms = listOf(
@@ -30,7 +35,7 @@ class FormDaoTest
     @Test
     fun selectAll_returns_all_rows()
     {
-        assertEquals(testForms,dao.selectAll())
+        assertEquals(testForms,dao.selectAll().awaitValue())
     }
 
     @Test
@@ -39,7 +44,7 @@ class FormDaoTest
         dao.delete(testForms[1].pk)
         assertEquals(
             listOf(testForms[0].pk,testForms[2].pk),
-            dao.selectAll().map {it.pk}
+            dao.selectAll().awaitValue().map {it.pk}
         )
     }
 
@@ -61,6 +66,6 @@ class FormDaoTest
         val insertedRowId = dao.insert(toInsert)
         val insertedRow = FormEntity(insertedRowId,toInsert)
         assertEquals(insertedRow,dao.selectOne(insertedRowId))
-        assertEquals(testForms+insertedRow,dao.selectAll())
+        assertEquals(testForms+insertedRow,dao.selectAll().awaitValue())
     }
 }

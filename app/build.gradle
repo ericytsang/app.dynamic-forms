@@ -28,6 +28,13 @@ android {
             includeAndroidResources = true
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
@@ -44,6 +51,11 @@ dependencies {
     // Room (object-relational mapping)
     implementation "androidx.room:room-runtime:2.2.0-beta01"
     kapt "androidx.room:room-compiler:2.2.0-beta01"
+
+    // ViewModel and LiveData
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0-alpha03'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0"
+    implementation "androidx.lifecycle:lifecycle-extensions:2.0.0"
 
     // Testing
     testImplementation 'junit:junit:4.12'

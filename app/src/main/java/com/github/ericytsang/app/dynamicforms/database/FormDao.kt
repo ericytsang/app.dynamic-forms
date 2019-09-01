@@ -1,5 +1,6 @@
 package com.github.ericytsang.app.dynamicforms.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -14,8 +15,9 @@ abstract class FormDao
     protected abstract fun _insert(values:FormEntity.Values):Long
     fun insert(values:FormEntity.Values) = FormEntity.Pk(_insert(values))
 
+    // todo: paging
     @Query("SELECT * FROM FormEntity")
-    abstract fun selectAll():List<FormEntity>
+    abstract fun selectAll():LiveData<List<FormEntity>>
 
     @Query("SELECT * FROM FormEntity WHERE id = :id")
     protected abstract fun _selectOne(id:Long):FormEntity?

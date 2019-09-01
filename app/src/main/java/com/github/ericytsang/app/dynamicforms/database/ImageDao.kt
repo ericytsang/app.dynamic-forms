@@ -1,5 +1,6 @@
 package com.github.ericytsang.app.dynamicforms.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -16,7 +17,7 @@ abstract class ImageDao
     abstract fun selectAll():List<ImageEntity>
 
     @Query("SELECT * FROM ImageEntity WHERE url = :url")
-    protected abstract fun _selectOne(url:String):ImageEntity?
+    protected abstract fun _selectOne(url:String):LiveData<ImageEntity?>
     fun selectOne(pk:ImageEntity.Pk) = _selectOne(pk.url)
 
     @Delete(entity = ImageEntity::class)

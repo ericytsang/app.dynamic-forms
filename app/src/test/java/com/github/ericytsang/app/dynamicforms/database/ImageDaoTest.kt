@@ -1,8 +1,10 @@
 package com.github.ericytsang.app.dynamicforms.database
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.ericytsang.app.dynamicforms.database.ImageEntity.*
 import com.github.ericytsang.app.dynamicforms.utils.DbTestRule
+import com.github.ericytsang.app.dynamicforms.utils.awaitValue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Rule
@@ -18,6 +20,9 @@ class ImageDaoTest
         InstrumentationRegistry.getInstrumentation().targetContext,
         AppDatabase::class.java
     )
+
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private val dao = dbTestRule.database.imageDao()
 
@@ -36,7 +41,7 @@ class ImageDaoTest
     fun selectOne_returns_one_rows()
     {
         val toSelect = testImages[0]
-        assertEquals(toSelect,dao.selectOne(toSelect.pk))
+        assertEquals(toSelect,dao.selectOne(toSelect.pk).awaitValue())
     }
 
     @Test
@@ -44,7 +49,7 @@ class ImageDaoTest
     {
         val toDelete = testImages[1]
         dao.delete(toDelete.pk)
-        assertNull(dao.selectOne(toDelete.pk))
+        assertNull(dao.selectOne(toDelete.pk).awaitValue())
     }
 
     @Test
@@ -52,7 +57,7 @@ class ImageDaoTest
     {
         val toInsert = ImageEntity(Pk("url#4"),Values("different"))
         dao.insert(toInsert)
-        assertEquals(toInsert,dao.selectOne(toInsert.pk))
+        assertEquals(toInsert,dao.selectOne(toInsert.pk).awaitValue())
         assertEquals(testImages+toInsert,dao.selectAll())
     }
 
@@ -61,7 +66,7 @@ class ImageDaoTest
     {
         val toInsert = ImageEntity(Pk("url#3"),Values("different"))
         dao.insert(toInsert)
-        assertEquals(toInsert,dao.selectOne(toInsert.pk))
+        assertEquals(toInsert,dao.selectOne(toInsert.pk).awaitValue())
         assertEquals(
             testImages.filter {it.pk != toInsert.pk}+toInsert,
             dao.selectAll()
