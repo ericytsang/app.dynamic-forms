@@ -4,11 +4,13 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.ericytsang.app.dynamicforms.utils.DbTestRule
 import com.github.ericytsang.app.dynamicforms.utils.awaitValue
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.util.concurrent.LinkedBlockingQueue
 
 @RunWith(RobolectricTestRunner::class)
 class MiscDatabaseTest
@@ -48,6 +50,25 @@ class MiscDatabaseTest
             // ignore
         }
 
-        Assert.assertEquals(testForms,dao.selectAll().awaitValue())
+        assertEquals(testForms,dao.selectAll().awaitValue())
+    }
+
+    @Test
+    fun modifying_db_notifies_LiveData_observers()
+    {
+        val liveDataValues = LinkedBlockingQueue<List<FormEntity>>()
+        dao.selectAll().observeForever()
+        {
+            liveDataValues += it
+        }
+
+        assertEquals(testForms,liveDataValues.poll())
+        assertNull(liveDataValues.poll())
+
+        val toDelete = testForms[1]
+        dao.delete(toDelete.pk)
+
+        assertEquals(testForms.filter {it != toDelete},liveDataValues.poll())
+        assertNull(liveDataValues.poll())
     }
 }
