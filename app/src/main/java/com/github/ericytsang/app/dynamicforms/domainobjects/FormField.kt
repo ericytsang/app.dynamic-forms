@@ -34,6 +34,15 @@ sealed class FormField
             /** the text value that the user entered for this input field */
             val userInput:String
         ):FormField.Values
+        {
+            // todo: i wonder if this is possible.....
+            //  it might pose a problem when we want to create VMs for a form....
+            //  but in that particular case, maybe we should create a different kind of class
+            init
+            {
+                require(!(isRequired && userInput.isBlank()))
+            }
+        }
     }
 
     data class DateFormField(
@@ -47,7 +56,16 @@ sealed class FormField
             override val isRequired:Boolean,
 
             /** the date value that the user entered for this input field */
-            val userInput:Calendar
+            val userInput:Calendar?
         ):FormField.Values
+        {
+            // todo: i wonder if this is possible.....
+            //  it might pose a problem when we want to create VMs for a form....
+            //  but in that particular case, maybe we should create a different kind of class
+            init
+            {
+                require(!(isRequired && userInput != null))
+            }
+        }
     }
 }
