@@ -3,25 +3,24 @@ package com.github.ericytsang.app.dynamicforms
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.observe
+import androidx.lifecycle.Observer
 import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
 
 
 class ListActivity:AppCompatActivity()
 {
-    private var formOpenedForEditing:MainActivityViewModel.FormDetails? = null
-
-    override fun onCreate(savedInstanceState:Bundle?)
+    private val formActivityStarter = object
     {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity__list)
+        private var formOpenedForEditing:MainActivityViewModel.FormDetails? = null
 
-        val viewModel = InjectorUtils.getMainActivityViewModel(this)
-
-        // do to FormActivity if the detail fragment is not available (i.e. portrait mode)
-        viewModel.formDetails.observe(this)
+        val observer get() = _observer
+        private val _observer:Observer<MainActivityViewModel.FormDetailState> = Observer()
         {
-            when(it)
+            formDetailState:MainActivityViewModel.FormDetailState ->
+
+            val viewModel = InjectorUtils.getMainActivityViewModel(this@ListActivity)
+
+            when(formDetailState)
             {
                 MainActivityViewModel.FormDetailState.Idle ->
                 {
@@ -29,12 +28,13 @@ class ListActivity:AppCompatActivity()
                 }
                 is MainActivityViewModel.FormDetailState.Edit ->
                 {
-                    if (findViewById<View>(R.id.detail_fragment) == null && it.original != formOpenedForEditing)
+                    if (findViewById<View>(R.id.detail_fragment) == null && formDetailState.original != formOpenedForEditing)
                     {
                         debugLog {"FormActivity.start(...)"}
                         // todo: fix opening the details page twice
-                        FormActivity.start(this)
-                        formOpenedForEditing = it.original
+                        FormActivity.start(this@ListActivity)
+                        formOpenedForEditing = formDetailState.original
+                        viewModel.formDetails.removeObserver(observer)
                     }
                     Unit
                 }
@@ -42,9 +42,16 @@ class ListActivity:AppCompatActivity()
         }
     }
 
+    override fun onCreate(savedInstanceState:Bundle?)
+    {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity__list)
+    }
+
     override fun onResume()
     {
         super.onResume()
-        formOpenedForEditing = null
+        val viewModel = InjectorUtils.getMainActivityViewModel(this)
+        viewModel.formDetails.observe(this,formActivityStarter.observer)
     }
 }

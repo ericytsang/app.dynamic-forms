@@ -28,9 +28,14 @@ class FormListFragment:Fragment()
 
         val listener = object:FormViewHolder.Listener
         {
-            override fun onClick(item:Form)
+            override fun onClick(item:FormViewHolderModel)
             {
-                viewModel.selectOne(item.pk)
+                viewModel.selectOne(item.form.pk)
+            }
+
+            override fun onLongClick(item:FormViewHolderModel)
+            {
+                viewModel.delete(item.form.pk)
             }
         }
         viewBinding.recyclerView.adapter = FormAdapter(listener).apply()
@@ -55,7 +60,7 @@ class FormListFragment:Fragment()
 private class FormAdapter(
     private val listener:FormViewHolder.Listener
 ):
-    ListAdapter<Form,FormViewHolder>(diffCallback)
+    ListAdapter<FormViewHolderModel,FormViewHolder>(diffCallback)
 {
     override fun onCreateViewHolder(parent:ViewGroup,viewType:Int):FormViewHolder
     {
@@ -71,14 +76,14 @@ private class FormAdapter(
 
     companion object
     {
-        private val diffCallback = object:DiffUtil.ItemCallback<Form>()
+        private val diffCallback = object:DiffUtil.ItemCallback<FormViewHolderModel>()
         {
-            override fun areItemsTheSame(oldItem:Form,newItem:Form):Boolean
+            override fun areItemsTheSame(oldItem:FormViewHolderModel,newItem:FormViewHolderModel):Boolean
             {
-                return oldItem.pk == newItem.pk
+                return oldItem.form.pk == newItem.form.pk
             }
 
-            override fun areContentsTheSame(oldItem:Form,newItem:Form):Boolean
+            override fun areContentsTheSame(oldItem:FormViewHolderModel,newItem:FormViewHolderModel):Boolean
             {
                 return oldItem == newItem
             }
@@ -88,7 +93,7 @@ private class FormAdapter(
 
 
 // todo
-private data class FormViewHolderModel(
+data class FormViewHolderModel(
     val form:Form,
     val isSelected:Boolean
 )
@@ -98,20 +103,35 @@ private class FormViewHolder(
     private val viewBinding:ListItemFormBinding
 ):RecyclerView.ViewHolder(viewBinding.root)
 {
-    fun bind(listener:Listener,item:Form)
+    fun bind(listener:Listener,item:FormViewHolderModel)
     {
         viewBinding.apply()
         {
             root.setOnClickListener {listener.onClick(item)}
-            title.text = item.values.title
-            description.text = item.values.description
-            item.values.imageUrl.url // todo: display it?
+            root.setOnLongClickListener()
+            {
+                listener.onLongClick(item)
+                true
+            }
+            title.text = item.form.values.title
+            description.text = item.form.values.description
+            val backgroundColor = if (item.isSelected)
+            {
+                root.context.getColorCompat(android.R.color.holo_blue_bright)
+            }
+            else
+            {
+                root.context.getColorCompat(android.R.color.background_light)
+            }
+            root.setBackgroundColor(backgroundColor)
+            item.form.values.imageUrl.url // todo: display it?
 
         }
     }
 
     interface Listener
     {
-        fun onClick(item:Form)
+        fun onClick(item:FormViewHolderModel)
+        fun onLongClick(item:FormViewHolderModel)
     }
 }

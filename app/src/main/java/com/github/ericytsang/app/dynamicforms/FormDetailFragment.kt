@@ -50,15 +50,9 @@ class FormDetailFragment:Fragment()
         }
         viewBinding.recyclerView.adapter = FormFieldAdapter(listener).apply()
         {
-            viewModel.listItemSelection.observe(viewLifecycleOwner)
-            {
-                val shouldUpdateFormFields = when (it)
-                {
-                    is MainActivityViewModel.FormSelection.Single -> it.formPk != null
-                    is MainActivityViewModel.FormSelection.Multi -> false
-                }
-
-                val formDetailsState = viewModel.formDetails.value.takeIf {shouldUpdateFormFields}
+            // fixme: this glitches the typing
+            viewModel.formDetails.observe(viewLifecycleOwner)
+            {formDetailsState ->
                 when (formDetailsState)
                 {
                     MainActivityViewModel.FormDetailState.Idle -> submitList(listOf()) // todo: show empty state
@@ -67,7 +61,6 @@ class FormDetailFragment:Fragment()
                         this@FormDetailFragment.debugLog {"submitList(${formDetailsState.unsavedChanges})"}
                         submitList(formDetailsState.unsavedChanges)
                     }
-                    null -> Unit
                 }.exhaustive
             }
         }
