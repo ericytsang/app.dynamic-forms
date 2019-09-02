@@ -50,12 +50,24 @@ class FormDetailFragment:Fragment()
         }
         viewBinding.recyclerView.adapter = FormFieldAdapter(listener).apply()
         {
-            viewModel.formDetails.observe(viewLifecycleOwner)
+            viewModel.listItemSelection.observe(viewLifecycleOwner)
             {
-                when (it)
+                val shouldUpdateFormFields = when (it)
+                {
+                    is MainActivityViewModel.FormSelection.Single -> it.formPk != null
+                    is MainActivityViewModel.FormSelection.Multi -> false
+                }
+
+                val formDetailsState = viewModel.formDetails.value.takeIf {shouldUpdateFormFields}
+                when (formDetailsState)
                 {
                     MainActivityViewModel.FormDetailState.Idle -> submitList(listOf()) // todo: show empty state
-                    is MainActivityViewModel.FormDetailState.Edit -> submitList(it.original.formFields)
+                    is MainActivityViewModel.FormDetailState.Edit ->
+                    {
+                        this@FormDetailFragment.debugLog {"submitList(${formDetailsState.unsavedChanges})"}
+                        submitList(formDetailsState.unsavedChanges)
+                    }
+                    null -> Unit
                 }.exhaustive
             }
         }
@@ -86,6 +98,12 @@ class FormDetailFragment:Fragment()
         }
 
         return viewBinding.root
+    }
+
+    override fun onResume()
+    {
+        super.onResume()
+
     }
 }
 

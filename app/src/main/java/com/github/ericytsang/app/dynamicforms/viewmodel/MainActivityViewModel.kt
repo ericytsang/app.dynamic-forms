@@ -4,9 +4,7 @@ import android.content.Context
 import android.os.AsyncTask
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
 import androidx.room.RoomDatabase
@@ -14,14 +12,13 @@ import com.github.ericytsang.app.dynamicforms.FormFieldViewHolderModel
 import com.github.ericytsang.app.dynamicforms.R
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
 import com.github.ericytsang.app.dynamicforms.debugLog
-import com.github.ericytsang.app.dynamicforms.utils.SingletonFactory
 import com.github.ericytsang.app.dynamicforms.domainobjects.Form
-import com.github.ericytsang.app.dynamicforms.domainobjects.FormField
 import com.github.ericytsang.app.dynamicforms.domainobjects.Url
-import com.github.ericytsang.app.dynamicforms.repository.FormRepo
 import com.github.ericytsang.app.dynamicforms.repository.FormFieldRepo
+import com.github.ericytsang.app.dynamicforms.repository.FormRepo
 import com.github.ericytsang.app.dynamicforms.utils.BackPressureLatestSerialExecutor
 import com.github.ericytsang.app.dynamicforms.utils.SerialExecutor
+import com.github.ericytsang.app.dynamicforms.utils.SingletonFactory
 import com.github.ericytsang.app.dynamicforms.viewmodel.AsyncTaskBuilder.Companion.build
 
 interface ImageUrlFactory
@@ -178,7 +175,7 @@ class MainActivityViewModel(
         listItemSelection.observeForever()
         {formSelection:FormSelection ->
 
-            debugLog<MainActivityViewModel> {"formSelection: $formSelection"}
+            debugLog {"formSelection: $formSelection"}
 
             val toDisplayPk = when (formSelection)
             {

@@ -36,7 +36,7 @@ val <R> R.exhaustive:R get() = this
 
 // general
 
-inline fun <reified T> debugLog(lazyMessage:()->String)
+inline fun <reified T> T.debugLog(lazyMessage:()->String)
 {
     if (BuildConfig.DEBUG)
     {
