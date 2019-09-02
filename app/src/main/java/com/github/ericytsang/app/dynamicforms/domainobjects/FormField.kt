@@ -1,5 +1,6 @@
 package com.github.ericytsang.app.dynamicforms.domainobjects
 
+import com.github.ericytsang.app.dynamicforms.FormDetailFragment
 import com.github.ericytsang.app.dynamicforms.database.DateFormFieldEntity
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
 import com.github.ericytsang.app.dynamicforms.database.FormFieldEntity
@@ -20,6 +21,7 @@ sealed class FormField
                     TextFormField.Values(
                         FormEntity.Pk(parentFormFieldEntityValues.formId),
                         parentFormFieldEntityValues.positionInForm,
+                        parentFormFieldEntityValues.label,
                         parentFormFieldEntityValues.isRequired,
                         formFieldEntitySubclass.values.value
                     )
@@ -29,6 +31,7 @@ sealed class FormField
                     DateFormField.Values(
                         FormEntity.Pk(parentFormFieldEntityValues.formId),
                         parentFormFieldEntityValues.positionInForm,
+                        parentFormFieldEntityValues.label,
                         parentFormFieldEntityValues.isRequired,
                         formFieldEntitySubclass.values.value?.let {Calendar.getInstance().apply {timeInMillis = it}}
                     )
@@ -45,6 +48,7 @@ sealed class FormField
         FormFieldEntity.Values(
             values.formId.id,
             values.positionInForm,
+            values.label,
             values.isRequired
         )
     )
@@ -54,8 +58,11 @@ sealed class FormField
         /** [FormEntity] that this [FormField] is a part of */
         val formId:FormEntity.Pk
 
-        /** [FormField]s are sorted in ascending order of [positionInForm] when displayed in [FormFragment].todo: link the form fragment */
+        /** [FormField]s are sorted in ascending order of [positionInForm] when displayed in [FormDetailFragment] */
         val positionInForm:Int
+
+        /** the human-readable name for this form field e.g. "phone number", "email"  */
+        val label:String
 
         /** whether this field requires a non-empty value to be saved */
         val isRequired:Boolean
@@ -69,6 +76,7 @@ sealed class FormField
         data class Values(
             override val formId:FormEntity.Pk,
             override val positionInForm:Int,
+            override val label:String,
             override val isRequired:Boolean,
 
             /** the text value that the user entered for this input field */
@@ -97,6 +105,7 @@ sealed class FormField
         data class Values(
             override val formId:FormEntity.Pk,
             override val positionInForm:Int,
+            override val label:String,
             override val isRequired:Boolean,
 
             /** the date value that the user entered for this input field */

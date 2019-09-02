@@ -36,9 +36,9 @@ class TextFormFieldDaoTest
     private val testFormFields = testForms
         .flatMap {parentForm ->
             listOf(
-                FormFieldEntity.Values(parentForm.pk.id,1,true),
-                FormFieldEntity.Values(parentForm.pk.id,2,false),
-                FormFieldEntity.Values(parentForm.pk.id,3,false)
+                FormFieldEntity.Values(parentForm.pk.id,1,"label#1",true),
+                FormFieldEntity.Values(parentForm.pk.id,2,"label#2",false),
+                FormFieldEntity.Values(parentForm.pk.id,3,"label#3",false)
             )
         }
         .map {FormFieldEntity(formFieldDao.create(it),it)}

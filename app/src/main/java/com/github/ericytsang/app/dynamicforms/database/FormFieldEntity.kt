@@ -47,6 +47,9 @@ data class FormFieldEntity(
         /** @see FormField.Values.positionInForm */
         val positionInForm:Int,
 
+        /** @see FormField.Values.label */
+        val label:String,
+
         /** @see FormField.Values.isRequired */
         val isRequired:Boolean
     )

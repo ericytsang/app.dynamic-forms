@@ -35,9 +35,9 @@ class FormFieldDaoTest
     private val testFormFields = testForms
         .flatMap {parentForm ->
             listOf(
-                FormFieldEntity.Values(parentForm.pk.id,1,true),
-                FormFieldEntity.Values(parentForm.pk.id,2,false),
-                FormFieldEntity.Values(parentForm.pk.id,3,false)
+                FormFieldEntity.Values(parentForm.pk.id,1,"label#1",true),
+                FormFieldEntity.Values(parentForm.pk.id,2,"label#2",false),
+                FormFieldEntity.Values(parentForm.pk.id,3,"label#3",false)
             )
         }
         .map {FormFieldEntity(formFieldDao.create(it),it)}
@@ -88,7 +88,7 @@ class FormFieldDaoTest
     fun insert_adds_a_row()
     {
         val parentForm = testForms[1]
-        val toInsert = FormFieldEntity.Values(parentForm.pk.id,4,false)
+        val toInsert = FormFieldEntity.Values(parentForm.pk.id,4,"different label",false)
         val insertedRowId = formFieldDao.create(toInsert)
         val insertedRow = FormFieldEntity(insertedRowId,toInsert)
         assertEquals(insertedRow,formFieldDao.selectOne(insertedRowId))
@@ -102,7 +102,7 @@ class FormFieldDaoTest
     {
         val danglingFormId = 4L
         check(danglingFormId !in testForms.map {it.pk.id})
-        val toInsert = FormFieldEntity.Values(danglingFormId,4,false)
+        val toInsert = FormFieldEntity.Values(danglingFormId,4,"different label",false)
         val insertResult = runCatching()
         {
             formFieldDao.create(toInsert)
