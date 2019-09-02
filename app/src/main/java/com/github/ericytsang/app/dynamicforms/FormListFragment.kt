@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.ericytsang.app.dynamicforms.database.AppDatabase
 import com.github.ericytsang.app.dynamicforms.databinding.FragmentFormListBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemFormBinding
-import com.github.ericytsang.app.dynamicforms.repository.Form
+import com.github.ericytsang.app.dynamicforms.domainobjects.Form
 import com.github.ericytsang.app.dynamicforms.repository.FormRepo
 import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
 

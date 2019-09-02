@@ -1,4 +1,4 @@
-package com.github.ericytsang.app.dynamicforms.repository
+package com.github.ericytsang.app.dynamicforms.domainobjects
 
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
 

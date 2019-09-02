@@ -3,7 +3,7 @@ package com.github.ericytsang.app.dynamicforms.database
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.github.ericytsang.app.dynamicforms.repository.Form
+import com.github.ericytsang.app.dynamicforms.domainobjects.Form
 
 
 @Entity

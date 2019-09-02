@@ -9,9 +9,9 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
 import com.github.ericytsang.app.dynamicforms.utils.SingletonFactory
-import com.github.ericytsang.app.dynamicforms.repository.Form
+import com.github.ericytsang.app.dynamicforms.domainobjects.Form
 import com.github.ericytsang.app.dynamicforms.repository.FormRepo
-import com.github.ericytsang.app.dynamicforms.repository.Url
+import com.github.ericytsang.app.dynamicforms.domainobjects.Url
 
 @MainThread
 class MainActivityViewModel(

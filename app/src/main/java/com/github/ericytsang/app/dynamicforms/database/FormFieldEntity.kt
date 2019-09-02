@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.github.ericytsang.app.dynamicforms.repository.FormField
+import com.github.ericytsang.app.dynamicforms.domainobjects.FormField
 
 
 @Entity(
