@@ -3,6 +3,7 @@ package com.github.ericytsang.app.dynamicforms.database
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.github.ericytsang.app.dynamicforms.repository.Form
 
 
 @Entity
@@ -20,13 +21,13 @@ data class FormEntity(
 
     data class Values(
 
-        /** @see com.github.ericytsang.app.dynamicforms.repository.Form.Values.imageUrl */
+        /** @see Form.Values.imageUrl */
         val imageUrl:String,
 
-        /** @see com.github.ericytsang.app.dynamicforms.repository.Form.Values.title */
+        /** @see Form.Values.title */
         val title:String,
 
-        /** @see com.github.ericytsang.app.dynamicforms.repository.Form.Values.description */
+        /** @see Form.Values.description */
         val description:String
     )
 }

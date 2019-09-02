@@ -10,8 +10,9 @@ import com.github.ericytsang.app.dynamicforms.utils.SingletonFactory
     entities = [
         ImageEntity::class,
         FormEntity::class,
-        FormField.TextFormField::class,
-        FormField.DateFormField::class],
+        FormFieldEntity::class,
+        TextFormFieldEntity::class,
+        DateFormFieldEntity::class],
     version = 1
 )
 abstract class AppDatabase:RoomDatabase()
@@ -26,6 +27,11 @@ abstract class AppDatabase:RoomDatabase()
         }
     }
 
-    abstract fun formDao():FormDao
     abstract fun imageDao():ImageDao
+
+    abstract fun formDao():FormDao
+
+    abstract fun formFieldDao():FormFieldDao
+    abstract fun textFormFieldDao():TextFormFieldDao
+    abstract fun dateFormFieldDao():DateFormFieldDao
 }
