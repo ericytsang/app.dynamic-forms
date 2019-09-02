@@ -1,13 +1,53 @@
 package com.github.ericytsang.app.dynamicforms.domainobjects
 
+import com.github.ericytsang.app.dynamicforms.database.DateFormFieldEntity
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
 import com.github.ericytsang.app.dynamicforms.database.FormFieldEntity
+import com.github.ericytsang.app.dynamicforms.database.FormFieldEntitySubclass
+import com.github.ericytsang.app.dynamicforms.database.TextFormFieldEntity
 import java.util.Calendar
 
 sealed class FormField
 {
+    companion object
+    {
+        fun fromEntities(parentFormFieldEntityValues:FormFieldEntity.Values,formFieldEntitySubclass:FormFieldEntitySubclass):FormField
+        {
+            return when (formFieldEntitySubclass)
+            {
+                is TextFormFieldEntity -> TextFormField(
+                    formFieldEntitySubclass.pk,
+                    TextFormField.Values(
+                        FormEntity.Pk(parentFormFieldEntityValues.formId),
+                        parentFormFieldEntityValues.positionInForm,
+                        parentFormFieldEntityValues.isRequired,
+                        formFieldEntitySubclass.values.value
+                    )
+                )
+                is DateFormFieldEntity -> DateFormField(
+                    formFieldEntitySubclass.pk,
+                    DateFormField.Values(
+                        FormEntity.Pk(parentFormFieldEntityValues.formId),
+                        parentFormFieldEntityValues.positionInForm,
+                        parentFormFieldEntityValues.isRequired,
+                        formFieldEntitySubclass.values.value?.let {Calendar.getInstance().apply {timeInMillis = it}}
+                    )
+                )
+            }
+        }
+    }
+
     abstract val pk:FormFieldEntity.Pk
     abstract val values:Values
+
+    fun toFormFieldEntity() = FormFieldEntity(
+        pk,
+        FormFieldEntity.Values(
+            values.formId.id,
+            values.positionInForm,
+            values.isRequired
+        )
+    )
 
     interface Values
     {

@@ -1,11 +1,8 @@
 package com.github.ericytsang.app.dynamicforms.repository
 
 import com.github.ericytsang.app.dynamicforms.database.AppDatabase
-import com.github.ericytsang.app.dynamicforms.database.DateFormFieldEntity
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
-import com.github.ericytsang.app.dynamicforms.database.TextFormFieldEntity
 import com.github.ericytsang.app.dynamicforms.domainobjects.FormField
-import java.util.Calendar
 
 class FormFieldRepo(
     private val db:AppDatabase
@@ -24,29 +21,10 @@ class FormFieldRepo(
             .associateBy {it.pk}
         return formFieldEntitySubclassDaos
             .flatMap {it.selectAllForForm(formPk)}
-            .map {
-                val parentFormField = formFieldsByPk[it.pk] ?: error("no corresponding parent form field found")
-                when (it)
-                {
-                    is TextFormFieldEntity -> FormField.TextFormField(
-                        it.pk,
-                        FormField.TextFormField.Values(
-                            FormEntity.Pk(parentFormField.values.formId),
-                            parentFormField.values.positionInForm,
-                            parentFormField.values.isRequired,
-                            it.values.value
-                        )
-                    )
-                    is DateFormFieldEntity -> FormField.DateFormField(
-                        it.pk,
-                        FormField.DateFormField.Values(
-                            FormEntity.Pk(parentFormField.values.formId),
-                            parentFormField.values.positionInForm,
-                            parentFormField.values.isRequired,
-                            Calendar.getInstance().apply {timeInMillis = it.values.value}
-                        )
-                    )
-                }
+            .map {formFieldEntitySubclass ->
+                val parentFormField = formFieldsByPk[formFieldEntitySubclass.pk]
+                    ?: error("no corresponding parent form field found")
+                FormField.fromEntities(parentFormField.values,formFieldEntitySubclass)
             }
             .sortedBy {it.values.positionInForm}
     }
