@@ -2,16 +2,22 @@ package com.github.ericytsang.app.dynamicforms
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.ItemKeyProvider
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StableIdKeyProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.ericytsang.app.dynamicforms.databinding.LayoutListWithFabBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemFormBinding
 import com.github.ericytsang.app.dynamicforms.domainobjects.Form
+import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
 
 
 class FormListFragment:Fragment()
@@ -28,9 +34,23 @@ class FormListFragment:Fragment()
 
         val listener = object:FormViewHolder.Listener
         {
-            override fun onClick(item:Form)
+            override fun onClick(item:FormViewHolderModel)
             {
-                viewModel.selectOne(item.pk)
+                when(viewModel.listItemSelection.value)
+                {
+                    is MainActivityViewModel.FormSelection.Multi ->
+                    {
+                        viewModel.multiSelectAddElseRemove(item.form.pk)
+                    }
+                    is MainActivityViewModel.FormSelection.Single,
+                    null -> viewModel.selectOne(item.form.pk)
+                }.exhaustive
+            }
+
+            override fun onLongClick(item:FormViewHolderModel)
+            {
+                viewModel.delete(item.form.pk)
+//                viewModel.multiSelectAddElseRemove(item.form.pk)
             }
         }
         viewBinding.recyclerView.adapter = FormAdapter(listener).apply()
@@ -55,7 +75,7 @@ class FormListFragment:Fragment()
 private class FormAdapter(
     private val listener:FormViewHolder.Listener
 ):
-    ListAdapter<Form,FormViewHolder>(diffCallback)
+    ListAdapter<FormViewHolderModel,FormViewHolder>(diffCallback)
 {
     override fun onCreateViewHolder(parent:ViewGroup,viewType:Int):FormViewHolder
     {
@@ -71,14 +91,14 @@ private class FormAdapter(
 
     companion object
     {
-        private val diffCallback = object:DiffUtil.ItemCallback<Form>()
+        private val diffCallback = object:DiffUtil.ItemCallback<FormViewHolderModel>()
         {
-            override fun areItemsTheSame(oldItem:Form,newItem:Form):Boolean
+            override fun areItemsTheSame(oldItem:FormViewHolderModel,newItem:FormViewHolderModel):Boolean
             {
-                return oldItem.pk == newItem.pk
+                return oldItem.form.pk == newItem.form.pk
             }
 
-            override fun areContentsTheSame(oldItem:Form,newItem:Form):Boolean
+            override fun areContentsTheSame(oldItem:FormViewHolderModel,newItem:FormViewHolderModel):Boolean
             {
                 return oldItem == newItem
             }
@@ -88,7 +108,7 @@ private class FormAdapter(
 
 
 // todo
-private data class FormViewHolderModel(
+data class FormViewHolderModel(
     val form:Form,
     val isSelected:Boolean
 )
@@ -98,20 +118,35 @@ private class FormViewHolder(
     private val viewBinding:ListItemFormBinding
 ):RecyclerView.ViewHolder(viewBinding.root)
 {
-    fun bind(listener:Listener,item:Form)
+    fun bind(listener:Listener,item:FormViewHolderModel)
     {
         viewBinding.apply()
         {
             root.setOnClickListener {listener.onClick(item)}
-            title.text = item.values.title
-            description.text = item.values.description
-            item.values.imageUrl.url // todo: display it?
+            root.setOnLongClickListener()
+            {
+                listener.onLongClick(item)
+                true
+            }
+            title.text = item.form.values.title
+            description.text = item.form.values.description
+            val backgroundColor = if (item.isSelected)
+            {
+                root.context.getColorCompat(android.R.color.holo_blue_bright)
+            }
+            else
+            {
+                root.context.getColorCompat(android.R.color.background_light)
+            }
+            root.setBackgroundColor(backgroundColor)
+            item.form.values.imageUrl.url // todo: display it?
 
         }
     }
 
     interface Listener
     {
-        fun onClick(item:Form)
+        fun onClick(item:FormViewHolderModel)
+        fun onLongClick(item:FormViewHolderModel)
     }
 }

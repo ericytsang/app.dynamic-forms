@@ -4,11 +4,15 @@ import android.content.Context
 import android.os.AsyncTask
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.room.RoomDatabase
 import com.github.ericytsang.app.dynamicforms.FormFieldViewHolderModel
+import com.github.ericytsang.app.dynamicforms.FormViewHolderModel
 import com.github.ericytsang.app.dynamicforms.R
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
 import com.github.ericytsang.app.dynamicforms.debugLog
@@ -78,16 +82,6 @@ class MainActivityViewModel(
     private val backPressureLatestSerialExecutor = BackPressureLatestSerialExecutor()
 
 
-    // list of forms
-
-    val sortingMode = MutableLiveData<SortingMode>()
-        .apply {value = SortingMode.CREATE_DATE_DESCENDING}
-
-    // todo: add empty & loading states
-    val formList:LiveData<List<Form>> = sortingMode
-        .switchMap {_:SortingMode -> /* todo: use sorting mode */formRepo.getAll()}
-
-
     // single-select or multi-select forms in list
 
     sealed class FormSelection
@@ -101,28 +95,43 @@ class MainActivityViewModel(
             val formPks:Set<FormEntity.Pk>
         ):
             FormSelection()
+        {
+            init
+            {
+                require(formPks.isNotEmpty())
+            }
+        }
     }
 
     val listItemSelection:LiveData<FormSelection> get() = _listItemSelection
     private val _listItemSelection = MutableLiveData<FormSelection>()
         .apply {value = FormSelection.Single(null)}
 
-    fun multiSelectAdd(formPk:FormEntity.Pk)
+    fun multiSelectAddElseRemove(formPk:FormEntity.Pk)
     {
         _listItemSelection.value = when (val oldSelection = _listItemSelection.value)
         {
             is FormSelection.Single -> FormSelection.Multi(setOf(formPk))
-            is FormSelection.Multi -> FormSelection.Multi(oldSelection.formPks+formPk)
-            null -> FormSelection.Single(null)
-        }
-    }
+            is FormSelection.Multi ->
+            {
+                val newSelection = if (formPk in oldSelection.formPks)
+                {
+                    oldSelection.formPks-formPk
+                }
+                else
+                {
+                    oldSelection.formPks+formPk
+                }
 
-    fun multiSelectRemove(formPk:FormEntity.Pk)
-    {
-        _listItemSelection.value = when (val oldSelection = _listItemSelection.value)
-        {
-            is FormSelection.Single -> FormSelection.Multi(setOf(formPk))
-            is FormSelection.Multi -> FormSelection.Multi(oldSelection.formPks-formPk)
+                if (newSelection.isEmpty())
+                {
+                    FormSelection.Single(null)
+                }
+                else
+                {
+                    FormSelection.Multi(newSelection)
+                }
+            }
             null -> FormSelection.Single(null)
         }
     }
@@ -130,6 +139,56 @@ class MainActivityViewModel(
     fun selectOne(formPk:FormEntity.Pk?)
     {
         _listItemSelection.value = FormSelection.Single(formPk)
+    }
+
+
+    // list of forms
+
+    val sortingMode = MutableLiveData<SortingMode>()
+        .apply {value = SortingMode.CREATE_DATE_DESCENDING}
+
+    // todo: add empty & loading states
+    val formList:LiveData<List<FormViewHolderModel>> = run()
+    {
+        val combined = MediatorLiveData<List<FormViewHolderModel>>()
+        data class Data(
+            val forms:List<Form>?,
+            val sortingMode:SortingMode?,
+            val selection:FormSelection?
+        )
+        {
+            fun combine():Data
+            {
+                sortingMode // todo use to determine how we query the formRepo
+                val selectedItems = when(val selection = selection)
+                {
+                    is FormSelection.Single -> listOfNotNull(selection.formPk).toSet()
+                    is FormSelection.Multi -> selection.formPks
+                    null -> setOf()
+                }
+                combined.value = forms
+                    ?.map {FormViewHolderModel(it,it.pk in selectedItems)}
+                    ?:listOf()
+                return this
+            }
+        }
+        val formList = formRepo.getAll()
+        var data = Data(null,null,null)
+        combined.apply()
+        {
+            addSource(formList)
+            {
+                data = data.copy(forms = it).combine()
+            }
+            addSource(sortingMode)
+            {
+                data = data.copy(sortingMode = it).combine()
+            }
+            addSource(listItemSelection)
+            {
+                data = data.copy(selection = it).combine()
+            }
+        }
     }
 
 
@@ -180,7 +239,7 @@ class MainActivityViewModel(
             val toDisplayPk = when (formSelection)
             {
                 is FormSelection.Single -> formSelection.formPk
-                is FormSelection.Multi -> formSelection.formPks.lastOrNull()
+                is FormSelection.Multi -> null
             } ?: return@observeForever
 
             backPressureLatestSerialExecutor.execute(
@@ -201,11 +260,11 @@ class MainActivityViewModel(
                                 )
                             } else
                             {
-                                null
+                                FormDetailState.Idle
                             }
                         }
                     }
-                    .postExecute {_formDetails.value = it ?: return@postExecute}
+                    .postExecute {_formDetails.value = it}
                     .build())
         }
     }
@@ -258,13 +317,23 @@ class MainActivityViewModel(
                 .build())
     }
 
+    fun delete(toDelete:FormEntity.Pk)
+    {
+        serialExecutor.execute(
+            asyncTaskBuilder()
+                .background {
+                    formRepo.delete(toDelete)
+                }
+                .postExecute {}
+                .build())
+    }
+
     fun saveForm(context:Context,toSave:FormDetailState.Edit)
     {
         serialExecutor.execute(
             asyncTaskBuilder()
                 .preExecute {/* todo show that we're loading */}
                 .background {
-
                     db.runInTransaction<FormEntity.Pk>()
                     {
                         // delete old form
