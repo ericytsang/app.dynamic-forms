@@ -13,10 +13,13 @@ import androidx.room.Update
 @Dao
 abstract class FormFieldDao
 {
+    @Insert(entity = FormFieldEntity::class,onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertOrUpdate(formField:FormFieldEntity)
+
     @Insert(entity = FormFieldEntity::class)
-    protected abstract fun _insert(values:FormFieldEntity.Values):Long
+    protected abstract fun _create(values:FormFieldEntity.Values):Long
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    fun insert(values:FormFieldEntity.Values) = FormFieldEntity.Pk(_insert(values))
+    fun create(values:FormFieldEntity.Values) = FormFieldEntity.Pk(_create(values))
 
     // todo: add @VisibleForTesting for unused DAO methods on other DAOs
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
@@ -49,7 +52,6 @@ interface FormFieldSubclassDao<Subclass:FormFieldEntitySubclass>
 @Dao
 abstract class TextFormFieldDao:FormFieldSubclassDao<TextFormFieldEntity>
 {
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Insert(entity = TextFormFieldEntity::class)
     abstract fun insert(values:TextFormFieldEntity)
 
@@ -84,7 +86,6 @@ abstract class TextFormFieldDao:FormFieldSubclassDao<TextFormFieldEntity>
 @Dao
 abstract class DateFormFieldDao:FormFieldSubclassDao<DateFormFieldEntity>
 {
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Insert(entity = DateFormFieldEntity::class)
     abstract fun insert(values:DateFormFieldEntity)
 

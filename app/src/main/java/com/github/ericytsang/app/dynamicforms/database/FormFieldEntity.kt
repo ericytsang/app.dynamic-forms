@@ -106,6 +106,6 @@ data class DateFormFieldEntity(
     data class Values(
 
         /** @see FormField.DateFormField.Values.userInput */
-        val value:Long
+        val value:Long?
     )
 }

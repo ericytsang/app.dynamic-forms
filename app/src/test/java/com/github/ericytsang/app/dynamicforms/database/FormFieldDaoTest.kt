@@ -40,7 +40,7 @@ class FormFieldDaoTest
                 FormFieldEntity.Values(parentForm.pk.id,3,false)
             )
         }
-        .map {FormFieldEntity(formFieldDao.insert(it),it)}
+        .map {FormFieldEntity(formFieldDao.create(it),it)}
 
     @Test
     fun selectAllForForm_returns_all_rows_for_form()
@@ -89,7 +89,7 @@ class FormFieldDaoTest
     {
         val parentForm = testForms[1]
         val toInsert = FormFieldEntity.Values(parentForm.pk.id,4,false)
-        val insertedRowId = formFieldDao.insert(toInsert)
+        val insertedRowId = formFieldDao.create(toInsert)
         val insertedRow = FormFieldEntity(insertedRowId,toInsert)
         assertEquals(insertedRow,formFieldDao.selectOne(insertedRowId))
         assertEquals(
@@ -105,7 +105,7 @@ class FormFieldDaoTest
         val toInsert = FormFieldEntity.Values(danglingFormId,4,false)
         val insertResult = runCatching()
         {
-            formFieldDao.insert(toInsert)
+            formFieldDao.create(toInsert)
         }
         assertNotNull(insertResult.exceptionOrNull())
     }

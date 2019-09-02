@@ -28,4 +28,17 @@ class FormFieldRepo(
             }
             .sortedBy {it.values.positionInForm}
     }
+
+    fun save(formField:FormField)
+    {
+        // save FormField
+        formFieldDao.insertOrUpdate(formField.toFormFieldEntity())
+
+        // save FormFieldSubclass
+        when(formField)
+        {
+            is FormField.TextFormField -> db.textFormFieldDao().insert(formField.toTextFormFieldEntity())
+            is FormField.DateFormField -> db.dateFormFieldDao().insert(formField.toDateFormFieldEntity())
+        }
+    }
 }

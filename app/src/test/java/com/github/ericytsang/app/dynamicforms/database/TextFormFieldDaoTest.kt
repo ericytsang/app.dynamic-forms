@@ -41,7 +41,7 @@ class TextFormFieldDaoTest
                 FormFieldEntity.Values(parentForm.pk.id,3,false)
             )
         }
-        .map {FormFieldEntity(formFieldDao.insert(it),it)}
+        .map {FormFieldEntity(formFieldDao.create(it),it)}
 
     private val testTextFormFields = testFormFields
         .map {parentFormField ->

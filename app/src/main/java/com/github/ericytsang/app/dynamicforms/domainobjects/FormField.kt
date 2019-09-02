@@ -83,6 +83,10 @@ sealed class FormField
                 require(!(isRequired && userInput.isBlank()))
             }
         }
+
+        fun toTextFormFieldEntity() = TextFormFieldEntity(
+            pk,
+            TextFormFieldEntity.Values(values.userInput))
     }
 
     data class DateFormField(
@@ -107,5 +111,9 @@ sealed class FormField
                 require(!(isRequired && userInput != null))
             }
         }
+
+        fun toDateFormFieldEntity() = DateFormFieldEntity(
+            pk,
+            DateFormFieldEntity.Values(values.userInput?.timeInMillis))
     }
 }
