@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.ericytsang.app.dynamicforms.database.AppDatabase
-import com.github.ericytsang.app.dynamicforms.databinding.FragmentFormListBinding
+import com.github.ericytsang.app.dynamicforms.databinding.LayoutListWithFabBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemFormBinding
 import com.github.ericytsang.app.dynamicforms.domainobjects.Form
 import com.github.ericytsang.app.dynamicforms.repository.FormRepo
@@ -45,7 +45,7 @@ class FormListFragment:Fragment()
         savedInstanceState:Bundle?
     ):View?
     {
-        val viewBinding = FragmentFormListBinding.inflate(inflater,container,false)
+        val viewBinding = LayoutListWithFabBinding.inflate(inflater,container,false)
         val viewModel = InjectorUtils.getMainActivityViewModel(activity!!)
 
         viewBinding.recyclerView.adapter = FormAdapter().apply()
