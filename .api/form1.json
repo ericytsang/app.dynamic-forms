@@ -1,0 +1,142 @@
+[
+  {
+    "positionInForm": "0",
+    "label": "Title",
+    "isRequired": true,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "1",
+    "label": "Description",
+    "isRequired": true,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "2",
+    "label": "Title",
+    "isRequired": false,
+    "type": "date",
+    "value": 9854526
+  },
+  {
+    "positionInForm": "3",
+    "label": "Title",
+    "isRequired": false,
+    "type": "date",
+    "value": 55551455
+  },
+  {
+    "positionInForm": "4",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "5",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "6",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "7",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "8",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "9",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "10",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "11",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "12",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "13",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "14",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "15",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "16",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "17",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "18",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  },
+  {
+    "positionInForm": "19",
+    "label": "Title",
+    "isRequired": false,
+    "type": "text",
+    "value": ""
+  }
+]
