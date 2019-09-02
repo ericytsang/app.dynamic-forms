@@ -10,16 +10,12 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.github.ericytsang.app.dynamicforms.database.FormEntity
 import com.github.ericytsang.app.dynamicforms.databinding.LayoutListWithFabBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemDateFormFieldBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemTextFormFieldBinding
-import com.github.ericytsang.app.dynamicforms.domainobjects.FormField
+import com.github.ericytsang.app.dynamicforms.domainobjects.FormFieldReadData
 import com.github.ericytsang.app.dynamicforms.utils.TextWatcherAdapter
 import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
-import org.json.JSONObject
-import java.util.Calendar
-import java.util.Locale
 
 
 class FormDetailFragment:Fragment()
@@ -40,15 +36,15 @@ class FormDetailFragment:Fragment()
                 // publish form field modifications to the view model
                 viewModel.formDetails.observe(viewLifecycleOwner)
                 {
-                    onChangedDelegate = fun(model:FormFieldViewHolderModel)
+                    onChangedDelegate = fun(model:FormFieldReadData)
                     {
                         viewModel.publishPendingChanges(model)
                     }
                 }
             }
 
-            private var onChangedDelegate:(model:FormFieldViewHolderModel)->Unit = {}
-            override fun onChanged(model:FormFieldViewHolderModel) = onChangedDelegate(model)
+            private var onChangedDelegate:(model:FormFieldReadData)->Unit = {}
+            override fun onChanged(model:FormFieldReadData) = onChangedDelegate(model)
         }
         viewBinding.recyclerView.adapter = FormFieldAdapter(listener).apply()
         {
@@ -94,26 +90,20 @@ class FormDetailFragment:Fragment()
 
         return viewBinding.root
     }
-
-    override fun onResume()
-    {
-        super.onResume()
-
-    }
 }
 
 
 private class FormFieldAdapter(
     private val listener:FormFieldViewHolder.Listener
 ):
-    ListAdapter<FormFieldViewHolderModel,FormFieldViewHolder>(diffCallback)
+    ListAdapter<FormFieldReadData,FormFieldViewHolder>(diffCallback)
 {
     override fun getItemViewType(position:Int):Int
     {
         return when (getItem(position))
         {
-            is FormFieldViewHolderModel.Text -> FormFieldViewHolderType.TEXT.ordinal
-            is FormFieldViewHolderModel.Date -> FormFieldViewHolderType.DATE.ordinal
+            is FormFieldReadData.Text -> FormFieldViewHolderType.TEXT.ordinal
+            is FormFieldReadData.Date -> FormFieldViewHolderType.DATE.ordinal
         }
     }
 
@@ -129,12 +119,12 @@ private class FormFieldAdapter(
         {
             is FormFieldViewHolder.TextFormFieldViewHolder ->
             {
-                toBindToViewHolder as FormFieldViewHolderModel.Text
+                toBindToViewHolder as FormFieldReadData.Text
                 holder.bind(listener,toBindToViewHolder)
             }
             is FormFieldViewHolder.DateFormFieldViewHolder ->
             {
-                toBindToViewHolder as FormFieldViewHolderModel.Date
+                toBindToViewHolder as FormFieldReadData.Date
                 holder.bind(listener,toBindToViewHolder)
             }
         }.exhaustive
@@ -142,19 +132,19 @@ private class FormFieldAdapter(
 
     companion object
     {
-        private val diffCallback = object:DiffUtil.ItemCallback<FormFieldViewHolderModel>()
+        private val diffCallback = object:DiffUtil.ItemCallback<FormFieldReadData>()
         {
             override fun areItemsTheSame(
-                oldItem:FormFieldViewHolderModel,
-                newItem:FormFieldViewHolderModel
+                oldItem:FormFieldReadData,
+                newItem:FormFieldReadData
             ):Boolean
             {
                 return oldItem.positionInForm == newItem.positionInForm
             }
 
             override fun areContentsTheSame(
-                oldItem:FormFieldViewHolderModel,
-                newItem:FormFieldViewHolderModel
+                oldItem:FormFieldReadData,
+                newItem:FormFieldReadData
             ):Boolean
             {
                 return oldItem == newItem
@@ -186,128 +176,6 @@ private enum class FormFieldViewHolderType
 }
 
 
-sealed class FormFieldViewHolderModel
-{
-    companion object
-    {
-        fun fromModel(model:FormField.Values):FormFieldViewHolderModel
-        {
-            return when (model)
-            {
-                is FormField.Values.Text -> Text(
-                    model.positionInForm,
-                    model.label,
-                    model.isRequired,
-                    model.userInput
-                )
-                is FormField.Values.Date -> Date(
-                    model.positionInForm,
-                    model.label,
-                    model.isRequired,
-                    model.userInput
-                )
-            }
-        }
-
-        private const val JSON_KEY__POSITION_IN_FORM = "positionInForm"
-        private const val JSON_KEY__LABEL = "label"
-        private const val JSON_KEY__IS_REQUIRED = "isRequired"
-        private const val JSON_KEY__TYPE = "type"
-        enum class JsonTypeValue
-        {
-            TEXT,
-            DATE,
-            ;
-        }
-        private const val JSON_KEY__VALUE = "value"
-
-        fun fromJson(json:JSONObject):FormFieldViewHolderModel
-        {
-            return when(JsonTypeValue.valueOf(json.getString(JSON_KEY__TYPE).toUpperCase(Locale.US)))
-            {
-                JsonTypeValue.TEXT -> Text(
-                    json.getInt(JSON_KEY__POSITION_IN_FORM),
-                    json.getString(JSON_KEY__LABEL),
-                    json.getBoolean(JSON_KEY__IS_REQUIRED),
-                    json.getString(JSON_KEY__VALUE))
-                JsonTypeValue.DATE -> Date(
-                    json.getInt(JSON_KEY__POSITION_IN_FORM),
-                    json.getString(JSON_KEY__LABEL),
-                    json.getBoolean(JSON_KEY__IS_REQUIRED),
-                    Calendar.getInstance().apply {timeInMillis = json.getLong(JSON_KEY__VALUE)})
-            }
-        }
-    }
-
-    fun toModel(formPk:FormEntity.Pk):FormField.Values
-    {
-        return when (this)
-        {
-            is Text -> FormField.Values.Text(
-                formPk,
-                positionInForm,
-                formFieldLabel,
-                formFieldIsRequired,
-                formFieldValue
-            )
-            is Date -> FormField.Values.Date(
-                formPk,
-                positionInForm,
-                formFieldLabel,
-                formFieldIsRequired,
-                formFieldValue
-            )
-        }
-    }
-
-    /**
-     * make sure there's a corresponding [JsonTypeValue] declared for each
-     * [FormFieldViewHolderModel] subclass
-     */
-    fun toJsonTypeValue():JsonTypeValue
-    {
-        return when(this)
-        {
-            is Text -> JsonTypeValue.TEXT
-            is Date -> JsonTypeValue.DATE
-        }
-    }
-
-    /**
-     * returns the user's input as a string to show to user.
-     */
-    val userInputAsString:String
-        get()
-        {
-            return when (this)
-            {
-                is Text -> formFieldValue
-                is Date -> formFieldValue?.toString() ?: "<no date set>"
-            }
-        }
-
-    abstract val positionInForm:Int
-    abstract val formFieldLabel:String
-    abstract val formFieldIsRequired:Boolean
-    abstract override fun hashCode():Int
-    abstract override fun equals(other:Any?):Boolean
-
-    data class Text(
-        override val positionInForm:Int,
-        override val formFieldLabel:String,
-        override val formFieldIsRequired:Boolean,
-        val formFieldValue:String
-    ):FormFieldViewHolderModel()
-
-    data class Date(
-        override val positionInForm:Int,
-        override val formFieldLabel:String,
-        override val formFieldIsRequired:Boolean,
-        val formFieldValue:Calendar?
-    ):FormFieldViewHolderModel()
-}
-
-
 private sealed class FormFieldViewHolder(view:View):RecyclerView.ViewHolder(view)
 {
 
@@ -325,7 +193,7 @@ private sealed class FormFieldViewHolder(view:View):RecyclerView.ViewHolder(view
             })
         }
 
-        fun bind(listener:Listener,model:FormFieldViewHolderModel.Text)
+        fun bind(listener:Listener,model:FormFieldReadData.Text)
         {
             afterTextChangedDelegate = fun(s:Editable?)
             {
@@ -343,7 +211,7 @@ private sealed class FormFieldViewHolder(view:View):RecyclerView.ViewHolder(view
         private val viewBinding:ListItemDateFormFieldBinding
     ):FormFieldViewHolder(viewBinding.root)
     {
-        fun bind(listener:Listener,model:FormFieldViewHolderModel.Date)
+        fun bind(listener:Listener,model:FormFieldReadData.Date)
         {
             viewBinding.apply()
             {
@@ -358,6 +226,6 @@ private sealed class FormFieldViewHolder(view:View):RecyclerView.ViewHolder(view
 
     interface Listener
     {
-        fun onChanged(model:FormFieldViewHolderModel)
+        fun onChanged(model:FormFieldReadData)
     }
 }

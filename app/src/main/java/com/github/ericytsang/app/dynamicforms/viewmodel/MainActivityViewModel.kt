@@ -8,7 +8,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.room.RoomDatabase
-import com.github.ericytsang.app.dynamicforms.FormFieldViewHolderModel
+import com.github.ericytsang.app.dynamicforms.domainobjects.FormFieldReadData
 import com.github.ericytsang.app.dynamicforms.FormViewHolderModel
 import com.github.ericytsang.app.dynamicforms.R
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
@@ -143,7 +143,7 @@ class MainActivityViewModel(
         object Idle:FormDetailState()
         data class Edit(
             val original:FormDetails,
-            val unsavedChanges:List<FormFieldViewHolderModel>
+            val unsavedChanges:List<FormFieldReadData>
         ):
             FormDetailState()
         {
@@ -162,7 +162,7 @@ class MainActivityViewModel(
     data class FormDetails(
         val formPk:FormEntity.Pk?,
         val imageUrl:Url,
-        val formFields:List<FormFieldViewHolderModel>
+        val formFields:List<FormFieldReadData>
     )
     {
         init
@@ -189,7 +189,7 @@ class MainActivityViewModel(
                         {
                             val formFields = formFieldRepo
                                 .getAllForForm(toDisplayPk)
-                                .map {formField -> FormFieldViewHolderModel.fromModel(formField.values)}
+                                .map {formField -> FormFieldReadData.fromModel(formField.values)}
                             val form = formRepo.getOne(toDisplayPk)
                             if (form != null)
                             {
@@ -216,7 +216,7 @@ class MainActivityViewModel(
      * let the view model know how the form has been modified so far so that we can coordinate
      * "discard unsaved changes?" operations
      */
-    fun publishPendingChanges(updatedFormField:FormFieldViewHolderModel)
+    fun publishPendingChanges(updatedFormField:FormFieldReadData)
     {
         _formDetails.value = when (val oldValue = _formDetails.value)
         {
@@ -237,9 +237,9 @@ class MainActivityViewModel(
                 .background {
                     /* todo fetch from network */
                     val formFields = listOf(
-                        FormFieldViewHolderModel.Text(0,"Hello World!",false,"initial value"),
-                        FormFieldViewHolderModel.Text(1,"is it finally working?",false,""),
-                        FormFieldViewHolderModel.Text(2,"let's see...",false,"initial value")
+                        FormFieldReadData.Text(0,"Hello World!",false,"initial value"),
+                        FormFieldReadData.Text(1,"is it finally working?",false,""),
+                        FormFieldReadData.Text(2,"let's see...",false,"initial value")
                     )
                     FormDetailState.Edit(
                         FormDetails(

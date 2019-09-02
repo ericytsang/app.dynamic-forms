@@ -92,7 +92,6 @@ private class FormAdapter(
 }
 
 
-// todo
 data class FormViewHolderModel(
     val form:Form,
     val isSelected:Boolean

@@ -1,6 +1,6 @@
 package com.github.ericytsang.app.dynamicforms.json
 
-import com.github.ericytsang.app.dynamicforms.FormFieldViewHolderModel
+import com.github.ericytsang.app.dynamicforms.domainobjects.FormFieldReadData
 import junit.framework.Assert.assertEquals
 import org.json.JSONArray
 import org.junit.Test
@@ -44,7 +44,7 @@ class JsonFormFieldSerializationTest
             .getResourceAsStream(JSON_FILE_PATH)!!
             .use {fis -> JSONArray(String(fis.readBytes()))}
             .let {jsonArray -> (0 until jsonArray.length()).map {jsonArray.getJSONObject(it)}}
-            .map {FormFieldViewHolderModel.fromJson(it)}
+            .map {FormFieldReadData.fromJson(it)}
         assertEquals(20,formFields.size)
     }
 
@@ -55,8 +55,8 @@ class JsonFormFieldSerializationTest
             .getResourceAsStream(JSON_FILE_PATH)!!
             .use {fis -> JSONArray(String(fis.readBytes()))}
             .let {jsonArray -> (0 until jsonArray.length()).map {jsonArray.getJSONObject(it)}}
-            .map {FormFieldViewHolderModel.fromJson(it)}
+            .map {FormFieldReadData.fromJson(it)}
         val parsedFormFieldTypes = formFields.map {it.toJsonTypeValue()}.toSet()
-        assertEquals(FormFieldViewHolderModel.Companion.JsonTypeValue.values().toSet(),parsedFormFieldTypes)
+        assertEquals(FormFieldReadData.JsonTypeValue.values().toSet(),parsedFormFieldTypes)
     }
 }
