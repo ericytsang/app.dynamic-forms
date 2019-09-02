@@ -1,6 +1,5 @@
 package com.github.ericytsang.app.dynamicforms
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,31 +9,9 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.github.ericytsang.app.dynamicforms.database.AppDatabase
 import com.github.ericytsang.app.dynamicforms.databinding.LayoutListWithFabBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemFormBinding
 import com.github.ericytsang.app.dynamicforms.domainobjects.Form
-import com.github.ericytsang.app.dynamicforms.repository.FormRepo
-import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
-
-object InjectorUtils
-{
-
-    private fun getAppDatabase(context:Context):AppDatabase
-    {
-        return AppDatabase.factory.getInstance(context.applicationContext)
-    }
-
-    private fun getFormRepo(context:Context):FormRepo
-    {
-        return FormRepo(getAppDatabase(context))
-    }
-
-    fun getMainActivityViewModel(context:Context):MainActivityViewModel
-    {
-        return MainActivityViewModel.factory.getInstance(getFormRepo(context))
-    }
-}
 
 
 class FormListFragment:Fragment()
@@ -45,19 +22,29 @@ class FormListFragment:Fragment()
         savedInstanceState:Bundle?
     ):View?
     {
+        val context = context!!
         val viewBinding = LayoutListWithFabBinding.inflate(inflater,container,false)
         val viewModel = InjectorUtils.getMainActivityViewModel(activity!!)
 
-        viewBinding.recyclerView.adapter = FormAdapter().apply()
+        val listener = object:FormViewHolder.Listener
         {
-            viewModel.formListItems.observe(viewLifecycleOwner)
+            override fun onClick(item:Form)
+            {
+                viewModel.selectOne(item.pk)
+            }
+        }
+        viewBinding.recyclerView.adapter = FormAdapter(listener).apply()
+        {
+            viewModel.formList.observe(viewLifecycleOwner)
             {
                 submitList(it)
             }
         }
+        viewBinding.fab.setImageDrawable(context.getDrawableCompat(R.drawable.ic_add_black_24dp))
         viewBinding.fab.setOnClickListener()
         {
-            viewModel.addRandomForm()
+            view:View ->
+            viewModel.openNewFormForEditing(view.context)
         }
 
         return viewBinding.root
@@ -65,7 +52,10 @@ class FormListFragment:Fragment()
 }
 
 
-private class FormAdapter:ListAdapter<Form,FormViewHolder>(diffCallback)
+private class FormAdapter(
+    private val listener:FormViewHolder.Listener
+):
+    ListAdapter<Form,FormViewHolder>(diffCallback)
 {
     override fun onCreateViewHolder(parent:ViewGroup,viewType:Int):FormViewHolder
     {
@@ -76,7 +66,7 @@ private class FormAdapter:ListAdapter<Form,FormViewHolder>(diffCallback)
 
     override fun onBindViewHolder(holder:FormViewHolder,position:Int)
     {
-        holder.bind(getItem(position) ?: return)
+        holder.bind(listener,getItem(position) ?: return)
     }
 
     companion object
@@ -96,17 +86,32 @@ private class FormAdapter:ListAdapter<Form,FormViewHolder>(diffCallback)
     }
 }
 
+
+// todo
+private data class FormViewHolderModel(
+    val form:Form,
+    val isSelected:Boolean
+)
+
+
 private class FormViewHolder(
     private val viewBinding:ListItemFormBinding
 ):RecyclerView.ViewHolder(viewBinding.root)
 {
-    fun bind(item:Form)
+    fun bind(listener:Listener,item:Form)
     {
         viewBinding.apply()
         {
+            root.setOnClickListener {listener.onClick(item)}
             title.text = item.values.title
             description.text = item.values.description
-            item.values.imageUrl.url
+            item.values.imageUrl.url // todo: display it?
+
         }
+    }
+
+    interface Listener
+    {
+        fun onClick(item:Form)
     }
 }

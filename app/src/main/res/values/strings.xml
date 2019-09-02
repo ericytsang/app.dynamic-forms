@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Forms</string>
+    <string name="main_activity_vm__no_title"><![CDATA[<No Title>]]></string>
+    <string name="main_activity_vm__no_description"><![CDATA[<No description>]]></string>
 </resources>

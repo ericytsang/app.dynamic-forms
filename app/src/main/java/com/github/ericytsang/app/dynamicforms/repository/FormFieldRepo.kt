@@ -1,8 +1,11 @@
 package com.github.ericytsang.app.dynamicforms.repository
 
 import com.github.ericytsang.app.dynamicforms.database.AppDatabase
+import com.github.ericytsang.app.dynamicforms.database.DateFormFieldEntity
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
+import com.github.ericytsang.app.dynamicforms.database.TextFormFieldEntity
 import com.github.ericytsang.app.dynamicforms.domainobjects.FormField
+import com.github.ericytsang.app.dynamicforms.exhaustive
 
 class FormFieldRepo(
     private val db:AppDatabase
@@ -35,10 +38,25 @@ class FormFieldRepo(
         formFieldDao.insertOrUpdate(formField.toFormFieldEntity())
 
         // save FormFieldSubclass
-        when(formField)
+        when (formField)
         {
-            is FormField.TextFormField -> db.textFormFieldDao().insert(formField.toTextFormFieldEntity())
-            is FormField.DateFormField -> db.dateFormFieldDao().insert(formField.toDateFormFieldEntity())
-        }
+            is FormField.TextFormField -> db.textFormFieldDao().update(formField.toTextFormFieldEntity())
+            is FormField.DateFormField -> db.dateFormFieldDao().update(formField.toDateFormFieldEntity())
+        }.exhaustive
+    }
+
+    fun create(formFieldValues:FormField.Values)
+    {
+        // save FormField
+        val pk = formFieldDao.create(formFieldValues.toFormFieldEntityValues())
+
+        // save FormFieldSubclass
+        when (formFieldValues)
+        {
+            is FormField.Values.Text -> db.textFormFieldDao()
+                .insert(TextFormFieldEntity(pk,formFieldValues.toTextFormFieldEntityValues()))
+            is FormField.Values.Date -> db.dateFormFieldDao()
+                .insert(DateFormFieldEntity(pk,formFieldValues.toDateFormFieldEntityValues()))
+        }.exhaustive
     }
 }

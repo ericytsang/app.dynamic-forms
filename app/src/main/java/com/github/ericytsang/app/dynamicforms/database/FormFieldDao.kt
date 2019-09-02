@@ -18,7 +18,6 @@ abstract class FormFieldDao
 
     @Insert(entity = FormFieldEntity::class)
     protected abstract fun _create(values:FormFieldEntity.Values):Long
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun create(values:FormFieldEntity.Values) = FormFieldEntity.Pk(_create(values))
 
     // todo: add @VisibleForTesting for unused DAO methods on other DAOs
@@ -26,7 +25,7 @@ abstract class FormFieldDao
     @Query("SELECT * FROM FormFieldEntity")
     abstract fun selectAll():List<FormFieldEntity>
 
-    @Query("SELECT * FROM FormFieldEntity WHERE formId = :formId")
+    @Query("SELECT * FROM FormFieldEntity WHERE formId = :formId ORDER BY positionInForm")
     protected abstract fun _selectAllForForm(formId:Long):List<FormFieldEntity>
     fun selectAllForForm(formPk:FormEntity.Pk) = _selectAllForForm(formPk.id)
 
@@ -74,7 +73,6 @@ abstract class TextFormFieldDao:FormFieldSubclassDao<TextFormFieldEntity>
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun selectOne(pk:FormFieldEntity.Pk) = _selectOne(pk.id)
 
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Update(entity = TextFormFieldEntity::class,onConflict = OnConflictStrategy.ABORT)
     abstract fun update(form:TextFormFieldEntity)
 
@@ -108,7 +106,6 @@ abstract class DateFormFieldDao:FormFieldSubclassDao<DateFormFieldEntity>
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun selectOne(pk:FormFieldEntity.Pk) = _selectOne(pk.id)
 
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Update(entity = DateFormFieldEntity::class,onConflict = OnConflictStrategy.ABORT)
     abstract fun update(form:DateFormFieldEntity)
 

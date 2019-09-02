@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- https://material.io/components/buttons-floating-action-button/#specs -->
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="max_land_list_width">300dp</dimen>
+
+    <!-- https://material.io/design/layout/spacing-methods.html#touch-targets -->
+    <dimen name="min_touch_target_spacing">8dp</dimen>
+    <dimen name="min_touch_target_length">48dp</dimen>
+
 </resources>

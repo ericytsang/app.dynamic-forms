@@ -1,71 +1,302 @@
 package com.github.ericytsang.app.dynamicforms.viewmodel
 
+import android.content.Context
 import android.os.AsyncTask
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import androidx.room.RoomDatabase
+import com.github.ericytsang.app.dynamicforms.FormFieldViewHolderModel
+import com.github.ericytsang.app.dynamicforms.R
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
+import com.github.ericytsang.app.dynamicforms.debugLog
 import com.github.ericytsang.app.dynamicforms.utils.SingletonFactory
 import com.github.ericytsang.app.dynamicforms.domainobjects.Form
-import com.github.ericytsang.app.dynamicforms.repository.FormRepo
+import com.github.ericytsang.app.dynamicforms.domainobjects.FormField
 import com.github.ericytsang.app.dynamicforms.domainobjects.Url
+import com.github.ericytsang.app.dynamicforms.repository.FormRepo
+import com.github.ericytsang.app.dynamicforms.repository.FormFieldRepo
+import com.github.ericytsang.app.dynamicforms.utils.BackPressureLatestSerialExecutor
+import com.github.ericytsang.app.dynamicforms.utils.SerialExecutor
+import com.github.ericytsang.app.dynamicforms.viewmodel.AsyncTaskBuilder.Companion.build
+
+interface ImageUrlFactory
+{
+    fun make():Url
+}
+
+class LoremPicsum:ImageUrlFactory
+{
+    override fun make():Url
+    {
+        return Url("https://picsum.photos/id/${(0..1084).random()}/200/200")
+    }
+}
 
 @MainThread
 class MainActivityViewModel(
-    private val formRepo:FormRepo
+    private val db:RoomDatabase,
+    private val formRepo:FormRepo,
+    private val formFieldRepo:FormFieldRepo,
+    private val imageUrlFactory:ImageUrlFactory
 ):
     ViewModel()
 {
     companion object
     {
-        val factory = SingletonFactory {formRepo:FormRepo -> MainActivityViewModel(formRepo)}
+        private data class FactoryParams(
+            val db:RoomDatabase,
+            val formRepo:FormRepo,
+            val formFieldRepo:FormFieldRepo,
+            val imageUrlFactory:ImageUrlFactory
+        )
+
+        private val factory = SingletonFactory()
+        {params:FactoryParams ->
+            MainActivityViewModel(
+                params.db,
+                params.formRepo,
+                params.formFieldRepo,
+                params.imageUrlFactory
+            )
+        }
+
+        fun getInstance(
+            db:RoomDatabase,
+            formRepo:FormRepo,
+            formFieldRepo:FormFieldRepo,
+            imageUrlFactory:ImageUrlFactory
+        ):MainActivityViewModel
+        {
+            return factory.getInstance(FactoryParams(db,formRepo,formFieldRepo,imageUrlFactory))
+        }
     }
+
+
+    private val serialExecutor = SerialExecutor()
+    private val backPressureLatestSerialExecutor = BackPressureLatestSerialExecutor()
+
+
+    // list of forms
 
     val sortingMode = MutableLiveData<SortingMode>()
         .apply {value = SortingMode.CREATE_DATE_DESCENDING}
 
-    private val _selectedListItems =
-        MutableLiveData<MutableSet<FormEntity.Pk>>()
-            .apply {value = mutableSetOf()}
-    val selectedListItems:LiveData<Set<FormEntity.Pk>> = _selectedListItems
-        .map {it as Set<FormEntity.Pk>}
+    // todo: add empty & loading states
+    val formList:LiveData<List<Form>> = sortingMode
+        .switchMap {_:SortingMode -> /* todo: use sorting mode */formRepo.getAll()}
 
-    val formListItems:LiveData<List<Form>> = sortingMode
-        .switchMap {_:SortingMode -> /* todo: use sorting mode */formRepo.getAllForms()}
 
-    fun addToMultiSelection(formPk:FormEntity.Pk)
+    // single-select or multi-select forms in list
+
+    sealed class FormSelection
     {
-        _selectedListItems.value?.add(formPk)
-        _selectedListItems.value = _selectedListItems.value
+        data class Single(
+            val formPk:FormEntity.Pk?
+        ):
+            FormSelection()
+
+        data class Multi(
+            val formPks:Set<FormEntity.Pk>
+        ):
+            FormSelection()
     }
 
-    fun removeFromMultiSelection(formPk:FormEntity.Pk)
-    {
-        _selectedListItems.value?.remove(formPk)
-        _selectedListItems.value = _selectedListItems.value
-    }
+    val listItemSelection:LiveData<FormSelection> get() = _listItemSelection
+    private val _listItemSelection = MutableLiveData<FormSelection>()
+        .apply {value = FormSelection.Single(null)}
 
-    fun clearMultiSelection()
+    fun multiSelectAdd(formPk:FormEntity.Pk)
     {
-        _selectedListItems.value?.clear()
-        _selectedListItems.value = _selectedListItems.value
-    }
-
-    fun addRandomForm()
-    {
-        AsyncTask.THREAD_POOL_EXECUTOR.execute()
+        _listItemSelection.value = when (val oldSelection = _listItemSelection.value)
         {
-            formRepo.create(
-                Form.Values(
-                    Url("https://github.com"),
-                    "title",
-                    "description"
-                )
-            )
+            is FormSelection.Single -> FormSelection.Multi(setOf(formPk))
+            is FormSelection.Multi -> FormSelection.Multi(oldSelection.formPks+formPk)
+            null -> FormSelection.Single(null)
         }
+    }
+
+    fun multiSelectRemove(formPk:FormEntity.Pk)
+    {
+        _listItemSelection.value = when (val oldSelection = _listItemSelection.value)
+        {
+            is FormSelection.Single -> FormSelection.Multi(setOf(formPk))
+            is FormSelection.Multi -> FormSelection.Multi(oldSelection.formPks-formPk)
+            null -> FormSelection.Single(null)
+        }
+    }
+
+    fun selectOne(formPk:FormEntity.Pk?)
+    {
+        _listItemSelection.value = FormSelection.Single(formPk)
+    }
+
+
+    // form screen i.e. list of form fields
+
+
+    sealed class FormDetailState
+    {
+        object Idle:FormDetailState()
+        data class Edit(
+            val original:FormDetails,
+            val unsavedChanges:List<FormFieldViewHolderModel>
+        ):
+            FormDetailState()
+        {
+            init
+            {
+                require(unsavedChanges == unsavedChanges.sortedBy {it.positionInForm})
+            }
+
+            val hasBeenModified:Boolean get()
+            {
+                return original.formPk == null || original.formFields != unsavedChanges
+            }
+        }
+    }
+
+    data class FormDetails(
+        val formPk:FormEntity.Pk?,
+        val imageUrl:Url,
+        val formFields:List<FormFieldViewHolderModel>
+    )
+    {
+        init
+        {
+            require(formFields == formFields.sortedBy {it.positionInForm})
+        }
+    }
+
+    init
+    {
+        // when the form selection changes, update the form details page to show it
+        listItemSelection.observeForever()
+        {formSelection:FormSelection ->
+
+            debugLog<MainActivityViewModel> {"formSelection: $formSelection"}
+
+            val toDisplayPk = when (formSelection)
+            {
+                is FormSelection.Single -> formSelection.formPk
+                is FormSelection.Multi -> formSelection.formPks.lastOrNull()
+            } ?: return@observeForever
+
+            backPressureLatestSerialExecutor.execute(
+                asyncTaskBuilder()
+                    .preExecute {/* todo show that we're loading */}
+                    .background {
+                        db.runInTransaction<FormDetailState?>()
+                        {
+                            val formFields = formFieldRepo
+                                .getAllForForm(toDisplayPk)
+                                .map {formField -> FormFieldViewHolderModel.fromModel(formField)}
+                            val form = formRepo.getOne(toDisplayPk)
+                            if (form != null)
+                            {
+                                FormDetailState.Edit(
+                                    FormDetails(form.pk,form.values.imageUrl,formFields),
+                                    formFields
+                                )
+                            } else
+                            {
+                                null
+                            }
+                        }
+                    }
+                    .postExecute {_formDetails.value = it ?: return@postExecute}
+                    .build())
+        }
+    }
+
+    val formDetails:LiveData<FormDetailState> get() = _formDetails
+    private val _formDetails = MutableLiveData<FormDetailState>()
+        .apply {value = FormDetailState.Idle}
+
+    /**
+     * let the view model know how the form has been modified so far so that we can coordinate
+     * "discard unsaved changes?" operations
+     */
+    fun publishPendingChanges(updatedFormField:FormFieldViewHolderModel)
+    {
+        _formDetails.value = when (val oldValue = _formDetails.value)
+        {
+            is FormDetailState.Edit -> oldValue.copy(unsavedChanges = oldValue.unsavedChanges.map()
+            {
+                if (it.positionInForm != updatedFormField.positionInForm) it else updatedFormField
+            })
+            FormDetailState.Idle,
+            null -> FormDetailState.Idle
+        }
+    }
+
+    fun openNewFormForEditing(context:Context)
+    {
+        backPressureLatestSerialExecutor.execute(
+            asyncTaskBuilder()
+                .preExecute {/* todo show that we're loading */}
+                .background {
+                    /* todo fetch from network */
+                    val formFields = listOf(
+                        FormFieldViewHolderModel.Text(0,"Hello World!",false,"initial value"),
+                        FormFieldViewHolderModel.Text(1,"is it finally working?",false,""),
+                        FormFieldViewHolderModel.Text(2,"let's see...",false,"initial value")
+                    )
+                    FormDetailState.Edit(
+                        FormDetails(
+                            null,
+                            imageUrlFactory.make(),
+                            formFields
+                        ),
+                        formFields
+                    )
+                }
+                .postExecute {
+                    _formDetails.value = it
+                }
+                .build())
+    }
+
+    fun saveForm(context:Context,toSave:FormDetailState.Edit)
+    {
+        serialExecutor.execute(
+            asyncTaskBuilder()
+                .preExecute {/* todo show that we're loading */}
+                .background {
+
+                    db.runInTransaction<FormEntity.Pk>()
+                    {
+                        // delete old form
+                        if (toSave.original.formPk != null)
+                        {
+                            formRepo.delete(toSave.original.formPk)
+                        }
+
+                        // save form
+                        val pk = formRepo.create(
+                            Form.Values(
+                                toSave.original.imageUrl,
+                                toSave.unsavedChanges.getOrNull(0)?.userInputAsString
+                                    ?: context.getString(R.string.main_activity_vm__no_title),
+                                toSave.unsavedChanges.getOrNull(1)?.userInputAsString
+                                    ?: context.getString(R.string.main_activity_vm__no_description)
+                            )
+                        )
+
+                        // save form fields
+                        toSave.unsavedChanges.forEach {formFieldRepo.create(it.toModel(pk))}
+
+                        return@runInTransaction pk
+                    }
+                }
+                .postExecute {
+                    selectOne(it)
+                }
+                .build())
     }
 
     enum class SortingMode
@@ -75,4 +306,39 @@ class MainActivityViewModel(
         LEXICAL_ASCENDING,
         LEXICAL_DESCENDING,
     }
+}
+
+fun asyncTaskBuilder() = AsyncTaskBuilder<Nothing?,Nothing?>({},{null},{})
+
+class StrategicAsyncTask<R>(
+    private val preExecute:()->Unit = {},
+    private val background:()->R,
+    private val postExecute:(R)->Unit = {}
+):
+    AsyncTask<Void,Int,R>()
+{
+    override fun onPreExecute() = preExecute()
+    override fun doInBackground(vararg params:Void?):R = background()
+    override fun onPostExecute(result:R) = postExecute(result)
+}
+
+class AsyncTaskBuilder<BackgroundResult,UiParams>(
+    private val preExecute:()->Unit,
+    private val doInBackground:()->BackgroundResult,
+    private val postExecute:(UiParams)->Unit
+)
+{
+    companion object
+    {
+        fun <X> AsyncTaskBuilder<X,X>.build() = StrategicAsyncTask(
+            preExecute,doInBackground,postExecute
+        )
+    }
+
+    fun <T> background(doInBackground:()->T) =
+        AsyncTaskBuilder(preExecute,doInBackground,postExecute)
+
+    fun preExecute(preExecute:()->Unit) = AsyncTaskBuilder(preExecute,doInBackground,postExecute)
+    fun postExecute(postExecute:(BackgroundResult)->Unit) =
+        AsyncTaskBuilder(preExecute,doInBackground,postExecute)
 }

@@ -5,7 +5,7 @@ import androidx.lifecycle.map
 import com.github.ericytsang.app.dynamicforms.database.AppDatabase
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
 import com.github.ericytsang.app.dynamicforms.domainobjects.Form
-import com.github.ericytsang.app.dynamicforms.domainobjects.Url
+
 
 class FormRepo(
     private val db:AppDatabase
@@ -13,26 +13,21 @@ class FormRepo(
 {
     private val dao = db.formDao()
 
-    fun getAllForms():LiveData<List<Form>>
+    fun getAll():LiveData<List<Form>>
     {
         return dao
             .selectAll()
             .map()
             {forms ->
-                forms.map()
-                {
-                    Form(
-                        it.pk,
-                        Form.Values(
-                            Url(
-                                it.values.imageUrl
-                            ),
-                            it.values.title,
-                            it.values.description
-                        )
-                    )
-                }
+                forms.map {Form.fromEntity(it)}
             }
+    }
+
+    fun getOne(formPk:FormEntity.Pk):Form?
+    {
+        return dao
+            .selectOne(formPk)
+            ?.let {Form.fromEntity(it)}
     }
 
     fun delete(pk:FormEntity.Pk)
@@ -40,25 +35,13 @@ class FormRepo(
         dao.delete(pk)
     }
 
-    fun create(formValues:Form.Values)
+    fun create(formValues:Form.Values):FormEntity.Pk
     {
-        dao.insert(
-            FormEntity.Values(
-                formValues.imageUrl.url,
-                formValues.title,
-                formValues.description
-            )
-        )
+        return dao.insert(formValues.toEntity())
     }
 
     fun update(form:Form)
     {
-        dao.insert(
-            FormEntity.Values(
-                form.values.imageUrl.url,
-                form.values.title,
-                form.values.description
-            )
-        )
+        dao.update(form.toEntity())
     }
 }

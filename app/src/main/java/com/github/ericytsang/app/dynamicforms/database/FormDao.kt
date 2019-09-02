@@ -22,10 +22,8 @@ abstract class FormDao
 
     @Query("SELECT * FROM FormEntity WHERE id = :id")
     protected abstract fun _selectOne(id:Long):FormEntity?
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun selectOne(pk:FormEntity.Pk) = _selectOne(pk.id)
 
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Update(entity = FormEntity::class,onConflict = OnConflictStrategy.ABORT)
     abstract fun update(form:FormEntity)
 
