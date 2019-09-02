@@ -35,12 +35,36 @@ class LoremPicsum:ImageUrlFactory
     }
 }
 
+/* todo fetch from network */
+interface NewFormDataFactory
+{
+    fun make():NewFormData
+}
+
+data class NewFormData(
+    val imageUrl:Url,
+    val formFields:List<FormFieldReadData>
+)
+
+class DummyNewFormDataFactory:NewFormDataFactory
+{
+    private val loremPicsum = LoremPicsum()
+    override fun make() = NewFormData(
+        loremPicsum.make(),
+        listOf(
+            FormFieldReadData.Text(0,"Hello World!",false,"initial value"),
+            FormFieldReadData.Text(1,"is it finally working?",false,""),
+            FormFieldReadData.Text(2,"let's see...",false,"initial value")
+        )
+    )
+}
+
 @MainThread
 class MainActivityViewModel(
     private val db:RoomDatabase,
     private val formRepo:FormRepo,
     private val formFieldRepo:FormFieldRepo,
-    private val imageUrlFactory:ImageUrlFactory
+    private val newFormDataFactory:NewFormDataFactory
 ):
     ViewModel()
 {
@@ -50,7 +74,7 @@ class MainActivityViewModel(
             val db:RoomDatabase,
             val formRepo:FormRepo,
             val formFieldRepo:FormFieldRepo,
-            val imageUrlFactory:ImageUrlFactory
+            val newFormDataFactory:NewFormDataFactory
         )
 
         private val factory = SingletonFactory()
@@ -59,7 +83,7 @@ class MainActivityViewModel(
                 params.db,
                 params.formRepo,
                 params.formFieldRepo,
-                params.imageUrlFactory
+                params.newFormDataFactory
             )
         }
 
@@ -67,10 +91,10 @@ class MainActivityViewModel(
             db:RoomDatabase,
             formRepo:FormRepo,
             formFieldRepo:FormFieldRepo,
-            imageUrlFactory:ImageUrlFactory
+            newFormDataFactory:NewFormDataFactory
         ):MainActivityViewModel
         {
-            return factory.getInstance(FactoryParams(db,formRepo,formFieldRepo,imageUrlFactory))
+            return factory.getInstance(FactoryParams(db,formRepo,formFieldRepo,newFormDataFactory))
         }
     }
 
@@ -99,6 +123,7 @@ class MainActivityViewModel(
     val formList:LiveData<List<FormViewHolderModel>> = run()
     {
         val combined = MediatorLiveData<List<FormViewHolderModel>>()
+
         data class Data(
             val forms:List<Form>?,
             val sortingMode:SortingMode?,
@@ -111,10 +136,11 @@ class MainActivityViewModel(
                 val selectedItems = listOfNotNull(selection).toSet()
                 combined.value = forms
                     ?.map {FormViewHolderModel(it,it.pk in selectedItems)}
-                    ?:listOf()
+                    ?: listOf()
                 return this
             }
         }
+
         val formList = formRepo.getAll()
         var data = Data(null,null,null)
         combined.apply()
@@ -152,10 +178,11 @@ class MainActivityViewModel(
                 require(unsavedChanges == unsavedChanges.sortedBy {it.positionInForm})
             }
 
-            val hasBeenModified:Boolean get()
-            {
-                return original.formPk == null || original.formFields != unsavedChanges
-            }
+            val hasBeenModified:Boolean
+                get()
+                {
+                    return original.formPk == null || original.formFields != unsavedChanges
+                }
         }
     }
 
@@ -229,25 +256,20 @@ class MainActivityViewModel(
         }
     }
 
-    fun openNewFormForEditing(context:Context)
+    fun openNewFormForEditing()
     {
         backPressureLatestSerialExecutor.execute(
             asyncTaskBuilder()
                 .preExecute {/* todo show that we're loading */}
                 .background {
-                    /* todo fetch from network */
-                    val formFields = listOf(
-                        FormFieldReadData.Text(0,"Hello World!",false,"initial value"),
-                        FormFieldReadData.Text(1,"is it finally working?",false,""),
-                        FormFieldReadData.Text(2,"let's see...",false,"initial value")
-                    )
+                    val newFormData = newFormDataFactory.make()
                     FormDetailState.Edit(
                         FormDetails(
                             null,
-                            imageUrlFactory.make(),
-                            formFields
+                            newFormData.imageUrl,
+                            newFormData.formFields
                         ),
-                        formFields
+                        newFormData.formFields
                     )
                 }
                 .postExecute {

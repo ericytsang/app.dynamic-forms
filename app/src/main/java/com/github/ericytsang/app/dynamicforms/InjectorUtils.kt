@@ -4,7 +4,7 @@ import android.content.Context
 import com.github.ericytsang.app.dynamicforms.database.AppDatabase
 import com.github.ericytsang.app.dynamicforms.repository.FormFieldRepo
 import com.github.ericytsang.app.dynamicforms.repository.FormRepo
-import com.github.ericytsang.app.dynamicforms.viewmodel.LoremPicsum
+import com.github.ericytsang.app.dynamicforms.viewmodel.DummyNewFormDataFactory
 import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
 
 object InjectorUtils
@@ -35,7 +35,7 @@ object InjectorUtils
             getAppDatabase(context),
             getFormRepo(context),
             getFormFieldRepo(context),
-            LoremPicsum()
+            DummyNewFormDataFactory()
         )
     }
 }
