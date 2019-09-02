@@ -6,10 +6,7 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
 import androidx.room.RoomDatabase
 import com.github.ericytsang.app.dynamicforms.FormFieldViewHolderModel
 import com.github.ericytsang.app.dynamicforms.FormViewHolderModel
@@ -192,7 +189,7 @@ class MainActivityViewModel(
                         {
                             val formFields = formFieldRepo
                                 .getAllForForm(toDisplayPk)
-                                .map {formField -> FormFieldViewHolderModel.fromModel(formField)}
+                                .map {formField -> FormFieldViewHolderModel.fromModel(formField.values)}
                             val form = formRepo.getOne(toDisplayPk)
                             if (form != null)
                             {

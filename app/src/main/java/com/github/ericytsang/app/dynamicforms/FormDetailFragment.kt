@@ -17,7 +17,9 @@ import com.github.ericytsang.app.dynamicforms.databinding.ListItemTextFormFieldB
 import com.github.ericytsang.app.dynamicforms.domainobjects.FormField
 import com.github.ericytsang.app.dynamicforms.utils.TextWatcherAdapter
 import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
+import org.json.JSONObject
 import java.util.Calendar
+import java.util.Locale
 
 
 class FormDetailFragment:Fragment()
@@ -188,22 +190,51 @@ sealed class FormFieldViewHolderModel
 {
     companion object
     {
-        fun fromModel(model:FormField):FormFieldViewHolderModel
+        fun fromModel(model:FormField.Values):FormFieldViewHolderModel
         {
             return when (model)
             {
-                is FormField.TextFormField -> Text(
-                    model.values.positionInForm,
-                    model.values.label,
-                    model.values.isRequired,
-                    model.values.userInput
+                is FormField.Values.Text -> Text(
+                    model.positionInForm,
+                    model.label,
+                    model.isRequired,
+                    model.userInput
                 )
-                is FormField.DateFormField -> Date(
-                    model.values.positionInForm,
-                    model.values.label,
-                    model.values.isRequired,
-                    model.values.userInput
+                is FormField.Values.Date -> Date(
+                    model.positionInForm,
+                    model.label,
+                    model.isRequired,
+                    model.userInput
                 )
+            }
+        }
+
+        private const val JSON_KEY__POSITION_IN_FORM = "positionInForm"
+        private const val JSON_KEY__LABEL = "label"
+        private const val JSON_KEY__IS_REQUIRED = "isRequired"
+        private const val JSON_KEY__TYPE = "type"
+        enum class JsonTypeValue
+        {
+            TEXT,
+            DATE,
+            ;
+        }
+        private const val JSON_KEY__VALUE = "value"
+
+        fun fromJson(json:JSONObject):FormFieldViewHolderModel
+        {
+            return when(JsonTypeValue.valueOf(json.getString(JSON_KEY__TYPE).toUpperCase(Locale.US)))
+            {
+                JsonTypeValue.TEXT -> Text(
+                    json.getInt(JSON_KEY__POSITION_IN_FORM),
+                    json.getString(JSON_KEY__LABEL),
+                    json.getBoolean(JSON_KEY__IS_REQUIRED),
+                    json.getString(JSON_KEY__VALUE))
+                JsonTypeValue.DATE -> Date(
+                    json.getInt(JSON_KEY__POSITION_IN_FORM),
+                    json.getString(JSON_KEY__LABEL),
+                    json.getBoolean(JSON_KEY__IS_REQUIRED),
+                    Calendar.getInstance().apply {timeInMillis = json.getLong(JSON_KEY__VALUE)})
             }
         }
     }
@@ -226,6 +257,19 @@ sealed class FormFieldViewHolderModel
                 formFieldIsRequired,
                 formFieldValue
             )
+        }
+    }
+
+    /**
+     * make sure there's a corresponding [JsonTypeValue] declared for each
+     * [FormFieldViewHolderModel] subclass
+     */
+    fun toJsonTypeValue():JsonTypeValue
+    {
+        return when(this)
+        {
+            is Text -> JsonTypeValue.TEXT
+            is Date -> JsonTypeValue.DATE
         }
     }
 
