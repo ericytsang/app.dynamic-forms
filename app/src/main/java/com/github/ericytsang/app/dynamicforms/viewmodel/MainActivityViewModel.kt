@@ -46,6 +46,7 @@ data class NewFormData(
     val formFields:List<FormFieldReadData>
 )
 
+/* todo: json form fields: https://raw.githubusercontent.com/ericytsang/app.dynamic-forms/master/.api/form1.json */
 class DummyNewFormDataFactory:NewFormDataFactory
 {
     private val loremPicsum = LoremPicsum()
