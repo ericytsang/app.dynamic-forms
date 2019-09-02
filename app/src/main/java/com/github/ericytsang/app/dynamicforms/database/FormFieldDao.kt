@@ -8,11 +8,14 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 
+// todo: maybe i can move all DAOs and tests into it's own library module to isolate its test-only functions more
+
 @Dao
 abstract class FormFieldDao
 {
     @Insert(entity = FormFieldEntity::class)
     protected abstract fun _insert(values:FormFieldEntity.Values):Long
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun insert(values:FormFieldEntity.Values) = FormFieldEntity.Pk(_insert(values))
 
     // todo: add @VisibleForTesting for unused DAO methods on other DAOs
@@ -29,9 +32,11 @@ abstract class FormFieldDao
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun selectOne(pk:FormFieldEntity.Pk) = _selectOne(pk.id)
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Update(entity = FormFieldEntity::class,onConflict = OnConflictStrategy.ABORT)
     abstract fun update(form:FormFieldEntity)
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Delete(entity = FormFieldEntity::class)
     abstract fun delete(pk:FormFieldEntity.Pk)
 }
@@ -44,6 +49,7 @@ interface FormFieldSubclassDao<Subclass:FormFieldEntitySubclass>
 @Dao
 abstract class TextFormFieldDao:FormFieldSubclassDao<TextFormFieldEntity>
 {
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Insert(entity = TextFormFieldEntity::class)
     abstract fun insert(values:TextFormFieldEntity)
 
@@ -58,15 +64,19 @@ abstract class TextFormFieldDao:FormFieldSubclassDao<TextFormFieldEntity>
             WHERE Parent.formId = :formId
     """)
     protected abstract fun _selectAllForForm(formId:Long):List<TextFormFieldEntity>
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     override fun selectAllForForm(formPk:FormEntity.Pk) = _selectAllForForm(formPk.id)
 
     @Query("SELECT * FROM TextFormFieldEntity WHERE id = :id")
     protected abstract fun _selectOne(id:Long):TextFormFieldEntity?
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun selectOne(pk:FormFieldEntity.Pk) = _selectOne(pk.id)
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Update(entity = TextFormFieldEntity::class,onConflict = OnConflictStrategy.ABORT)
     abstract fun update(form:TextFormFieldEntity)
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Delete(entity = TextFormFieldEntity::class)
     abstract fun delete(pk:FormFieldEntity.Pk)
 }
@@ -74,6 +84,7 @@ abstract class TextFormFieldDao:FormFieldSubclassDao<TextFormFieldEntity>
 @Dao
 abstract class DateFormFieldDao:FormFieldSubclassDao<DateFormFieldEntity>
 {
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Insert(entity = DateFormFieldEntity::class)
     abstract fun insert(values:DateFormFieldEntity)
 
@@ -88,15 +99,19 @@ abstract class DateFormFieldDao:FormFieldSubclassDao<DateFormFieldEntity>
             WHERE Parent.formId = :formId
     """)
     protected abstract fun _selectAllForForm(formId:Long):List<DateFormFieldEntity>
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     override fun selectAllForForm(formPk:FormEntity.Pk) = _selectAllForForm(formPk.id)
 
     @Query("SELECT * FROM DateFormFieldEntity WHERE id = :id")
     protected abstract fun _selectOne(id:Long):DateFormFieldEntity?
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun selectOne(pk:FormFieldEntity.Pk) = _selectOne(pk.id)
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Update(entity = DateFormFieldEntity::class,onConflict = OnConflictStrategy.ABORT)
     abstract fun update(form:DateFormFieldEntity)
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     @Delete(entity = DateFormFieldEntity::class)
     abstract fun delete(pk:FormFieldEntity.Pk)
 }
