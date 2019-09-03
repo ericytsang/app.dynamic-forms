@@ -234,7 +234,7 @@ class MainActivityViewModel(
                 sortingMode // todo use to determine how we query the formRepo
                 val selectedItems = listOfNotNull(selection).toSet()
                 combined.value = forms
-                    ?.map {FormViewHolderModel(it,it.pk in selectedItems)}
+                    ?.map {FormViewHolderModel(it,it.pk in selectedItems,null/* todo set the bitmap */)}
                     ?: listOf()
                 return this
             }

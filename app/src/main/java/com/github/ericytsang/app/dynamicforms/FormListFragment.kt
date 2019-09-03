@@ -1,5 +1,6 @@
 package com.github.ericytsang.app.dynamicforms
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -95,7 +96,8 @@ private class FormAdapter(
 
 data class FormViewHolderModel(
     val form:Form,
-    val isSelected:Boolean
+    val isSelected:Boolean,
+    val image:Bitmap?
 )
 
 
@@ -116,8 +118,7 @@ private class FormViewHolder(
             title.text = item.form.values.title
             description.text = item.form.values.description
             card.cardElevation = if (item.isSelected) 15f else 0f
-            item.form.values.imageUrl.url // todo: display it?
-
+            item.image?.let {image.setImageBitmap(it)}
         }
     }
 

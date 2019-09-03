@@ -15,8 +15,9 @@
             android:padding="@dimen/min_touch_target_spacing">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/image"
+                android:layout_width="@dimen/min_touch_target_length"
+                android:layout_height="@dimen/min_touch_target_length"
                 android:layout_gravity="center_vertical"
                 app:srcCompat="@drawable/ic_add_black_24dp" />
 
