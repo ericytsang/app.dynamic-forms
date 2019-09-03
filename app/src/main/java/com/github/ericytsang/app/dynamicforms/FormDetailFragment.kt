@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.map
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -14,7 +15,9 @@ import com.github.ericytsang.app.dynamicforms.databinding.LayoutListWithFabBindi
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemDateFormFieldBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemTextFormFieldBinding
 import com.github.ericytsang.app.dynamicforms.domainobjects.FormFieldReadData
+import com.github.ericytsang.app.dynamicforms.utils.StructEqualityAdapter
 import com.github.ericytsang.app.dynamicforms.utils.TextWatcherAdapter
+import com.github.ericytsang.app.dynamicforms.utils.debounced
 import com.github.ericytsang.app.dynamicforms.utils.debugLog
 import com.github.ericytsang.app.dynamicforms.utils.exhaustive
 import com.github.ericytsang.app.dynamicforms.utils.getDrawableCompat
@@ -52,19 +55,29 @@ class FormDetailFragment:Fragment()
         }
         viewBinding.recyclerView.adapter = FormFieldAdapter(listener).apply()
         {
-            // fixme: this glitches the typing
-            viewModel.formDetails.observe(viewLifecycleOwner)
-            {formDetailsState ->
-                when (formDetailsState)
-                {
-                    MainActivityViewModel.FormDetailState.Idle -> submitList(listOf()) // todo: show empty state
-                    is MainActivityViewModel.FormDetailState.Edit ->
+            viewModel.formDetails
+                .map()
+                {formDetailState ->
+                    when (formDetailState)
                     {
-                        this@FormDetailFragment.debugLog {"submitList(${formDetailsState.unsavedChanges})"}
-                        submitList(formDetailsState.unsavedChanges)
+                        MainActivityViewModel.FormDetailState.Idle ->
+                            StructEqualityAdapter(
+                                listOf<FormFieldReadData>(),
+                                listOf()
+                            ) // todo: show empty state
+                        is MainActivityViewModel.FormDetailState.Edit ->
+                            StructEqualityAdapter(
+                                formDetailState.original.formFields,
+                                formDetailState.unsavedChanges
+                            )
                     }
-                }.exhaustive
-            }
+                }
+                .debounced()
+                .observe(viewLifecycleOwner)
+                {
+                    debugLog {"submitList($it)"}
+                    submitList(it.value)
+                }
         }
         viewBinding.fab.setImageDrawable(context!!.getDrawableCompat(R.drawable.ic_save_black_24dp))
         // todo: add ability to check whether the form was modified or not so we can confirm whether user wants to discard their changes
@@ -84,8 +97,7 @@ class FormDetailFragment:Fragment()
                 {view:View ->
                     viewModel.saveForm(view.context!!,allowSaving)
                 }
-            }
-            else
+            } else
             {
                 viewBinding.fab.hide()
                 viewBinding.fab.setOnClickListener {}

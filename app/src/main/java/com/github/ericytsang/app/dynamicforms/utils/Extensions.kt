@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import com.github.ericytsang.app.dynamicforms.BuildConfig
 import org.json.JSONArray
 
@@ -48,3 +50,7 @@ inline fun <reified T> T.debugLog(lazyMessage:()->String)
 // JSONArray
 
 val JSONArray.indices get() = 0 until length()
+
+// LiveData
+
+fun <X> LiveData<X>.debounced():LiveData<X> = Transformations.distinctUntilChanged(this)
