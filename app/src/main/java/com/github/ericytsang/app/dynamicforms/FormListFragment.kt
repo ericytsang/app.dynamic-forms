@@ -116,15 +116,7 @@ private class FormViewHolder(
             }
             title.text = item.form.values.title
             description.text = item.form.values.description
-            val backgroundColor = if (item.isSelected)
-            {
-                root.context.getColorCompat(android.R.color.holo_blue_bright)
-            }
-            else
-            {
-                root.context.getColorCompat(android.R.color.background_light)
-            }
-            root.setBackgroundColor(backgroundColor)
+            card.cardElevation = if (item.isSelected) 15f else 0f
             item.form.values.imageUrl.url // todo: display it?
 
         }

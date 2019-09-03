@@ -3,49 +3,56 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="@dimen/min_touch_target_spacing">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            app:srcCompat="@drawable/ic_add_black_24dp" />
-
-        <Space
-            android:layout_width="@dimen/min_touch_target_spacing"
-            android:layout_height="match_parent" />
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:padding="@dimen/min_touch_target_spacing">
 
-            <TextView
-                android:id="@+id/title"
+            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:lines="1"
-                android:textAppearance="?textAppearanceListItem"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="An interesting title" />
+                android:layout_gravity="center_vertical"
+                app:srcCompat="@drawable/ic_add_black_24dp" />
 
-            <TextView
-                android:id="@+id/description"
-                android:layout_width="wrap_content"
+            <Space
+                android:layout_width="@dimen/min_touch_target_spacing"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:lines="1"
-                android:textAppearance="?textAppearanceListItemSecondary"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Extra information goes here and it could be really really really really long" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:lines="1"
+                    android:textAppearance="?textAppearanceListItem"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="An interesting title" />
+
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:lines="1"
+                    android:textAppearance="?textAppearanceListItemSecondary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Extra information goes here and it could be really really really really long" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </layout>
