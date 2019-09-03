@@ -119,7 +119,7 @@ private class FormViewHolder(
             title.text = item.form.values.title
             description.text = item.form.values.description
             card.cardElevation = if (item.isSelected) 15f else 0f
-            item.image?.let {image.setImageBitmap(it)}
+            // todo item.image?.let {image.setImageBitmap(it)}
         }
     }
 
