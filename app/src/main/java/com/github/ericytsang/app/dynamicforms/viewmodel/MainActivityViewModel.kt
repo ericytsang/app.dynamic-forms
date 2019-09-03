@@ -1,19 +1,12 @@
 package com.github.ericytsang.app.dynamicforms.viewmodel
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.widget.ImageView
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.room.RoomDatabase
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.ImageRequest
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
 import com.github.ericytsang.app.dynamicforms.FormViewHolderModel
 import com.github.ericytsang.app.dynamicforms.R
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
@@ -30,133 +23,7 @@ import com.github.ericytsang.app.dynamicforms.utils.SingletonFactory
 import com.github.ericytsang.app.dynamicforms.utils.asyncTaskBuilder
 import com.github.ericytsang.app.dynamicforms.utils.debugLog
 import com.github.ericytsang.app.dynamicforms.utils.exhaustive
-import com.github.ericytsang.app.dynamicforms.utils.indices
 import com.github.ericytsang.app.dynamicforms.utils.toastLong
-import org.json.JSONArray
-import java.util.concurrent.ArrayBlockingQueue
-
-interface ImageUrlFactory
-{
-    fun make():Url
-}
-
-class LoremPicsum:ImageUrlFactory
-{
-    override fun make():Url
-    {
-        return Url("https://picsum.photos/id/${(0..1084).random()}/200/200")
-    }
-}
-
-/* todo fetch from network */
-interface NewFormDataFactory
-{
-    fun make():Result<NewFormData,String>
-}
-
-data class NewFormData(
-    val imageUrl:Url,
-    val formFields:List<FormFieldReadData>
-)
-
-/* todo: json form fields: https://raw.githubusercontent.com/ericytsang/app.dynamic-forms/master/.api/form1.json */
-class DummyNewFormDataFactory:NewFormDataFactory
-{
-    private val loremPicsum = LoremPicsum()
-    override fun make() = Result.Success<NewFormData,String>(NewFormData(
-        loremPicsum.make(),
-        listOf(
-            FormFieldReadData.Text(0,"Hello World!",false,"initial value"),
-            FormFieldReadData.Text(1,"is it finally working?",false,""),
-            FormFieldReadData.Text(2,"let's see...",false,"initial value")
-        )
-    ))
-}
-
-class RoundRobinUrlDownloadingNewFormDataFactory(
-
-    /**
-     * some [Url]s that when HTTP GET, should return a JSON array that can be parsed into
-     * [FormFieldReadData] objects.
-     */
-    val getUrls:List<Url>,
-
-    /**
-     * app [Context]
-     */
-    _context:Context
-):
-    NewFormDataFactory
-{
-    companion object
-    {
-        data class Params(
-            val getUrls:List<Url>,
-            val context:Context
-        )
-
-        val factory = SingletonFactory()
-        {params:Params ->
-            RoundRobinUrlDownloadingNewFormDataFactory(params.getUrls,params.context)
-        }
-    }
-
-    private val context = _context.applicationContext
-    private val imageUrlFactory:ImageUrlFactory = LoremPicsum()
-    private val volleyRequestQueue = Volley.newRequestQueue(context)
-    private val formFieldJsonUrlFactory = generateSequence {getUrls}
-        .flatMap {it.asSequence()}
-        .iterator()
-
-    override fun make():Result<NewFormData,String>
-    {
-        val imageUrl = imageUrlFactory.make()
-
-        val formFields = ArrayBlockingQueue<()->List<FormFieldReadData>>(1)
-
-        // Request a string response from the provided URL.
-        volleyRequestQueue.add(StringRequest(
-            Request.Method.GET,
-            formFieldJsonUrlFactory.next().url,
-            Response.Listener<String>()
-            {response ->
-                val jsonArray = JSONArray(response)
-                formFields += {
-                    jsonArray.indices
-                        .map {jsonArray.getJSONObject(it)}
-                        .map {FormFieldReadData.fromJson(it)}
-                }
-            },
-            Response.ErrorListener()
-            {
-                val errorMessage = it.networkResponse.allHeaders.joinToString("\n")
-                formFields += {throw Throwable(errorMessage)}
-            }
-        ))
-
-        // start fetching the image so that it's cached
-        volleyRequestQueue.add(ImageRequest(
-            imageUrl.url,
-            Response.Listener<Bitmap> {/* ignore response */},
-            200,200,ImageView.ScaleType.CENTER_CROP,
-            Bitmap.Config.ARGB_8888,
-            Response.ErrorListener {}
-        ))
-
-        return runCatching()
-        {
-            Result.Success<NewFormData,String>(
-                NewFormData(
-                    imageUrl,
-                    formFields.take().invoke()
-                )
-            )
-        }.getOrElse()
-        {
-            Result.Failure(it.message!!)
-        }
-    }
-}
 
 @MainThread
 class MainActivityViewModel(
