@@ -3,6 +3,7 @@ package com.github.ericytsang.app.dynamicforms.viewmodel
 import android.content.Context
 import android.graphics.Bitmap
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -31,6 +32,7 @@ import com.github.ericytsang.app.dynamicforms.utils.Result
 import com.github.ericytsang.app.dynamicforms.utils.asyncTaskBuilder
 import com.github.ericytsang.app.dynamicforms.utils.exhaustive
 import com.github.ericytsang.app.dynamicforms.utils.indices
+import com.github.ericytsang.app.dynamicforms.utils.toastLong
 import org.json.JSONArray
 import java.util.concurrent.ArrayBlockingQueue
 
@@ -426,6 +428,7 @@ class MainActivityViewModel(
                     }
                 }
                 .postExecute {
+                    context.toastLong(R.string.main_activity_vm__saved)
                     selectOne(it)
                 }
                 .build())

@@ -6,8 +6,10 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
@@ -27,6 +29,11 @@ fun Context.getDrawableCompat(@DrawableRes drawableResId:Int):Drawable
 fun Context.getColorCompat(@ColorRes colorResId:Int):Int
 {
     return ContextCompat.getColor(this,colorResId)
+}
+
+fun Context.toastLong(@StringRes stringResId:Int)
+{
+    Toast.makeText(this,stringResId,Toast.LENGTH_LONG).show()
 }
 
 // Activity
