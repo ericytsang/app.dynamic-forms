@@ -46,8 +46,7 @@ private constructor(
     }
 
     private val context = _context.applicationContext
-    private val imageUrlFactory:ImageUrlFactory =
-        LoremPicsum()
+    private val imageUrlFactory:ImageUrlFactory = LoremPicsum()
     private val volleyRequestQueue = Volley.newRequestQueue(context)
     private val formFieldJsonUrlFactory = generateSequence {getUrls}
         .flatMap {it.asSequence()}
@@ -57,10 +56,7 @@ private constructor(
     {
         val imageUrl = imageUrlFactory.make()
 
-        val formFields =
-            ArrayBlockingQueue<()->List<FormFieldReadData>>(
-                1
-            )
+        val formFields = ArrayBlockingQueue<()->List<FormFieldReadData>>(1)
 
         // Request a string response from the provided URL.
         volleyRequestQueue.add(StringRequest(
@@ -68,25 +64,21 @@ private constructor(
             formFieldJsonUrlFactory.next().url,
             Response.Listener<String>()
             {response ->
+                // todo: handle parsing errors
                 val jsonArray = JSONArray(response)
                 formFields += {
                     jsonArray.indices
                         .map {jsonArray.getJSONObject(it)}
-                        .map {
-                            FormFieldReadData.fromJson(
-                                it
-                            )
-                        }
+                        .map {FormFieldReadData.fromJson(it)}
                 }
             },
             Response.ErrorListener()
             {
-                val errorMessage = it.networkResponse.allHeaders.joinToString("\n")
-                formFields += {throw Throwable(errorMessage)}
+                formFields += {throw Throwable(it.message)}
             }
         ))
 
-        // start fetching the image so that it's cached
+        // start fetching the image so that it's cached so we can use it later
         volleyRequestQueue.add(ImageRequest(
             imageUrl.url,
             Response.Listener<Bitmap> {/* ignore response */},
