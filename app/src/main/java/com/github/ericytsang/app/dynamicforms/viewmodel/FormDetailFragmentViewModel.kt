@@ -23,18 +23,6 @@ import com.github.ericytsang.app.dynamicforms.utils.exhaustive
 import com.github.ericytsang.app.dynamicforms.utils.toastLong
 
 
-interface FormDetailFragmentViewModelFactory
-{
-    fun getFormDetailFragmentViewModel():FormDetailFragmentViewModel
-}
-
-interface MainActivityViewModelFactory
-{
-    fun getMainActivityViewModel():MainActivityViewModel
-}
-
-
-
 class FormDetailFragmentViewModel(
     private val db:RoomDatabase,
     private val formRepo:FormRepo,
@@ -44,15 +32,13 @@ class FormDetailFragmentViewModel(
     ViewModel()
 {
     private val serialExecutor = SerialExecutor()
-    private val backPressureLatestSerialExecutor =
-        BackPressureLatestSerialExecutor()
+    private val backPressureLatestSerialExecutor = BackPressureLatestSerialExecutor()
 
 
     // single-select or multi-select forms in list
 
     val listItemSelection:LiveData<FormEntity.Pk?> get() = _listItemSelection
-    private val _listItemSelection =
-        MutableLiveData<FormEntity.Pk?>()
+    private val _listItemSelection = MutableLiveData<FormEntity.Pk?>()
 
     fun selectOne(formPk:FormEntity.Pk?)
     {
@@ -78,20 +64,12 @@ class FormDetailFragmentViewModel(
                         {
                             val formFields = formFieldRepo
                                 .getAllForForm(toDisplayPk)
-                                .map {formField ->
-                                    FormFieldReadData.fromModel(
-                                        formField.values
-                                    )
-                                }
+                                .map {formField -> FormFieldReadData.fromModel(formField.values)}
                             val form = formRepo.getOne(toDisplayPk)
                             if (form != null)
                             {
                                 FormDetailState.Edit(
-                                    FormDetails(
-                                        form.pk,
-                                        form.values.imageUrl,
-                                        formFields
-                                    ),
+                                    FormDetails(form.pk,form.values.imageUrl,formFields),
                                     formFields
                                 )
                             } else
@@ -104,8 +82,6 @@ class FormDetailFragmentViewModel(
                     .build())
         }
     }
-
-
 
 
     sealed class FormDetailState
@@ -241,12 +217,7 @@ class FormDetailFragmentViewModel(
                             formRepo.delete(pk)
 
                             // save form
-                            formRepo.create(
-                                Form(
-                                    pk,
-                                    formValues
-                                )
-                            )
+                            formRepo.create(Form(pk,formValues))
 
                             // save form fields
                             toSave.unsavedChanges.forEach()
