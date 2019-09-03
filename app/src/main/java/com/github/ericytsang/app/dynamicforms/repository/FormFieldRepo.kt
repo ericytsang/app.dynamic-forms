@@ -5,7 +5,7 @@ import com.github.ericytsang.app.dynamicforms.database.DateFormFieldEntity
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
 import com.github.ericytsang.app.dynamicforms.database.TextFormFieldEntity
 import com.github.ericytsang.app.dynamicforms.domainobjects.FormField
-import com.github.ericytsang.app.dynamicforms.exhaustive
+import com.github.ericytsang.app.dynamicforms.utils.exhaustive
 
 class FormFieldRepo(
     private val db:AppDatabase

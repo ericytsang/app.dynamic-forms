@@ -1,4 +1,4 @@
-package com.github.ericytsang.app.dynamicforms
+package com.github.ericytsang.app.dynamicforms.utils
 
 import android.app.Activity
 import android.content.Context
@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import com.github.ericytsang.app.dynamicforms.BuildConfig
+import org.json.JSONArray
 
 
 // Context
@@ -42,3 +44,7 @@ inline fun <reified T> T.debugLog(lazyMessage:()->String)
         Log.d(T::class.simpleName?:"<no name>",lazyMessage())
     }
 }
+
+// JSONArray
+
+val JSONArray.indices get() = 0 until length()
