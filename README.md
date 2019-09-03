@@ -14,5 +14,4 @@
 * required fields
 * data persistence via Room
 * master-details layout in landscape mode
-* new form fields are
 * unit tests
