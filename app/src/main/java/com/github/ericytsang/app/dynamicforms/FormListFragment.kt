@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.ericytsang.app.dynamicforms.databinding.LayoutListWithFabBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemFormBinding
 import com.github.ericytsang.app.dynamicforms.domainobjects.Form
-import com.github.ericytsang.app.dynamicforms.utils.getColorCompat
 import com.github.ericytsang.app.dynamicforms.utils.getDrawableCompat
 import com.github.ericytsang.app.dynamicforms.utils.layoutInflater
 

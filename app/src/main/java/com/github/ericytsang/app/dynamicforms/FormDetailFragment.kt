@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.ericytsang.app.dynamicforms.databinding.LayoutListWithFabBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemDateFormFieldBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemTextFormFieldBinding
-import com.github.ericytsang.app.dynamicforms.domainobjects.FormField
 import com.github.ericytsang.app.dynamicforms.domainobjects.FormFieldReadData
 import com.github.ericytsang.app.dynamicforms.utils.StructEqualityAdapter
 import com.github.ericytsang.app.dynamicforms.utils.TextWatcherAdapter
