@@ -52,7 +52,8 @@ class FormListFragment:Fragment()
         viewBinding.fab.setImageDrawable(context.getDrawableCompat(R.drawable.ic_add_black_24dp))
         viewBinding.fab.setOnClickListener()
         {
-            viewModel.formDetailFragmentViewModel.openNewFormForEditing()
+            view:View->
+            viewModel.formDetailFragmentViewModel.openNewFormForEditing(view.context)
         }
 
         return viewBinding.root

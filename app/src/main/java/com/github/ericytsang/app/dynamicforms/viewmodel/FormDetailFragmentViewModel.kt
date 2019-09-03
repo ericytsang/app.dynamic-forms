@@ -149,7 +149,7 @@ class FormDetailFragmentViewModel(
         }
     }
 
-    fun openNewFormForEditing()
+    fun openNewFormForEditing(context:Context)
     {
         backPressureLatestSerialExecutor.execute(
             asyncTaskBuilder()
@@ -172,7 +172,7 @@ class FormDetailFragmentViewModel(
                     when (it)
                     {
                         is Result.Success -> _formDetails.value = it.success
-                        is Result.Failure -> debugLog {it.failure}
+                        is Result.Failure -> context.toastLong(it.failure)
                     }.exhaustive
                 }
                 .build())

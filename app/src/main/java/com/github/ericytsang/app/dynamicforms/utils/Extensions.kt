@@ -36,6 +36,11 @@ fun Context.toastLong(@StringRes stringResId:Int)
     Toast.makeText(this,stringResId,Toast.LENGTH_LONG).show()
 }
 
+fun Context.toastLong(string:String)
+{
+    Toast.makeText(this,string,Toast.LENGTH_LONG).show()
+}
+
 // Activity
 
 val Activity.contentView get() = findViewById<ViewGroup>(android.R.id.content)

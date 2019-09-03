@@ -55,7 +55,7 @@ class FormActivity:AppCompatActivity(),FormDetailFragmentViewModelFactory
             val params = toParams(intent)
             when (params)
             {
-                is Params.New -> getFormDetailFragmentViewModel().openNewFormForEditing()
+                is Params.New -> getFormDetailFragmentViewModel().openNewFormForEditing(this)
                 is Params.Edit -> getFormDetailFragmentViewModel().selectOne(params.formPk)
             }.exhaustive
         }
