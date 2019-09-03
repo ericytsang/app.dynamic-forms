@@ -3,57 +3,43 @@ package com.github.ericytsang.app.dynamicforms
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import com.github.ericytsang.app.dynamicforms.utils.debugLog
-import com.github.ericytsang.app.dynamicforms.utils.exhaustive
+import androidx.lifecycle.observe
+import com.github.ericytsang.app.dynamicforms.viewmodel.FormDetailFragmentViewModel
+import com.github.ericytsang.app.dynamicforms.viewmodel.FormDetailFragmentViewModelFactory
 import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
+import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModelFactory
 
 
-class ListActivity:AppCompatActivity()
+class ListActivity:
+    AppCompatActivity(),
+    FormDetailFragmentViewModelFactory,
+    MainActivityViewModelFactory
 {
-    private val formActivityStarter = object
+    override fun getFormDetailFragmentViewModel():FormDetailFragmentViewModel
     {
-        private var formOpenedForEditing:MainActivityViewModel.FormDetails? = null
+        return getMainActivityViewModel().formDetailFragmentViewModel
+    }
 
-        val observer get() = _observer
-        private val _observer:Observer<MainActivityViewModel.FormDetailState> = Observer()
-        {
-            formDetailState:MainActivityViewModel.FormDetailState ->
-
-            val viewModel = InjectorUtils.getMainActivityViewModel(this@ListActivity)
-
-            when(formDetailState)
-            {
-                MainActivityViewModel.FormDetailState.Idle ->
-                {
-                    formOpenedForEditing = null
-                }
-                is MainActivityViewModel.FormDetailState.Edit ->
-                {
-                    if (findViewById<View>(R.id.detail_fragment) == null && formDetailState.original != formOpenedForEditing)
-                    {
-                        debugLog {"FormActivity.start(...)"}
-                        // todo: fix opening the details page twice
-                        FormActivity.start(this@ListActivity)
-                        formOpenedForEditing = formDetailState.original
-                        viewModel.formDetails.removeObserver(observer)
-                    }
-                    Unit
-                }
-            }.exhaustive
-        }
+    override fun getMainActivityViewModel():MainActivityViewModel
+    {
+        return InjectorUtils.getMainActivityViewModelInstance(this)
     }
 
     override fun onCreate(savedInstanceState:Bundle?)
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity__list)
-    }
 
-    override fun onResume()
-    {
-        super.onResume()
-        val viewModel = InjectorUtils.getMainActivityViewModel(this)
-        viewModel.formDetails.observe(this,formActivityStarter.observer)
+        val viewModel = getMainActivityViewModel()
+        viewModel.listItemSelection.observe(this)
+        {
+            formPk->
+            formPk ?: return@observe
+            if (findViewById<View>(R.id.detail_fragment) == null)
+            {
+                viewModel.selectOne(null)
+                FormActivity.start(this@ListActivity,formPk)
+            }
+        }
     }
 }

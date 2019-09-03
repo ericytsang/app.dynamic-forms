@@ -9,30 +9,26 @@ import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
 import com.github.ericytsang.app.dynamicforms.viewmodel.NewFormDataFactory
 import com.github.ericytsang.app.dynamicforms.viewmodel.RoundRobinUrlDownloadingNewFormDataFactory
 import com.github.ericytsang.app.dynamicforms.viewmodel.RoundRobinUrlDownloadingNewFormDataFactory.Companion.Params
+import com.github.ericytsang.app.dynamicforms.viewmodel.FormDetailFragmentViewModel
 
 object InjectorUtils
 {
-
-    private fun getAppDatabase(context:Context):AppDatabase
+    private fun getAppDatabaseInstance(context:Context):AppDatabase
     {
         return AppDatabase.factory.getInstance(context.applicationContext)
     }
 
-    private fun getFormRepo(context:Context):FormRepo
+    private fun getFormRepoInstance(context:Context):FormRepo
     {
-        return FormRepo(getAppDatabase(context))
+        return FormRepo(getAppDatabaseInstance(context))
     }
 
-    private fun getFormFieldRepo(context:Context):FormFieldRepo
+    private fun getFormFieldRepoInstance(context:Context):FormFieldRepo
     {
-        return FormFieldRepo(
-            getAppDatabase(
-                context
-            )
-        )
+        return FormFieldRepo(getAppDatabaseInstance(context))
     }
 
-    private fun getFormFieldsFactory(context:Context):NewFormDataFactory
+    private fun getFormFieldsFactoryInstance(context:Context):NewFormDataFactory
     {
         return RoundRobinUrlDownloadingNewFormDataFactory.factory.getInstance(
             Params(
@@ -45,13 +41,23 @@ object InjectorUtils
         )
     }
 
-    fun getMainActivityViewModel(context:Context):MainActivityViewModel
+    fun getMainActivityViewModelInstance(context:Context):MainActivityViewModel
     {
         return MainActivityViewModel.getInstance(
-            getAppDatabase(context),
-            getFormRepo(context),
-            getFormFieldRepo(context),
-            getFormFieldsFactory(context)
+            getAppDatabaseInstance(context),
+            getFormRepoInstance(context),
+            getFormFieldRepoInstance(context),
+            getFormFieldsFactoryInstance(context)
+        )
+    }
+
+    fun newFormDetailFragmentViewModel(context:Context):FormDetailFragmentViewModel
+    {
+        return FormDetailFragmentViewModel(
+            getAppDatabaseInstance(context),
+            getFormRepoInstance(context),
+            getFormFieldRepoInstance(context),
+            getFormFieldsFactoryInstance(context)
         )
     }
 }

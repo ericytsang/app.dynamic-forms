@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.github.ericytsang.app.dynamicforms.domainobjects.Form
+import java.io.Serializable
 
 
 @Entity
@@ -17,7 +18,7 @@ data class FormEntity(
 {
     data class Pk(
         val id:Long
-    )
+    ):Serializable
 
     data class Values(
 

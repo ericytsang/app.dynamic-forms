@@ -22,7 +22,8 @@ import com.github.ericytsang.app.dynamicforms.utils.debugLog
 import com.github.ericytsang.app.dynamicforms.utils.exhaustive
 import com.github.ericytsang.app.dynamicforms.utils.getDrawableCompat
 import com.github.ericytsang.app.dynamicforms.utils.layoutInflater
-import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
+import com.github.ericytsang.app.dynamicforms.viewmodel.FormDetailFragmentViewModel
+import com.github.ericytsang.app.dynamicforms.viewmodel.FormDetailFragmentViewModelFactory
 
 
 class FormDetailFragment:Fragment()
@@ -34,7 +35,7 @@ class FormDetailFragment:Fragment()
     ):View?
     {
         val viewBinding = LayoutListWithFabBinding.inflate(inflater,container,false)
-        val viewModel = InjectorUtils.getMainActivityViewModel(activity!!)
+        val viewModel = (activity as FormDetailFragmentViewModelFactory).getFormDetailFragmentViewModel()
 
         val listener = object:FormFieldViewHolder.Listener
         {
@@ -60,12 +61,12 @@ class FormDetailFragment:Fragment()
                 {formDetailState ->
                     when (formDetailState)
                     {
-                        MainActivityViewModel.FormDetailState.Idle ->
+                        FormDetailFragmentViewModel.FormDetailState.Idle ->
                             StructEqualityAdapter(
                                 listOf<FormFieldReadData>(),
                                 listOf()
                             ) // todo: show empty state
-                        is MainActivityViewModel.FormDetailState.Edit ->
+                        is FormDetailFragmentViewModel.FormDetailState.Edit ->
                             StructEqualityAdapter(
                                 formDetailState.original.formFields,
                                 formDetailState.unsavedChanges
@@ -86,8 +87,8 @@ class FormDetailFragment:Fragment()
         {
             val allowSaving = when (it)
             {
-                MainActivityViewModel.FormDetailState.Idle -> null
-                is MainActivityViewModel.FormDetailState.Edit -> if (it.canSave) it else null
+                FormDetailFragmentViewModel.FormDetailState.Idle -> null
+                is FormDetailFragmentViewModel.FormDetailState.Edit -> if (it.canSave) it else null
             }.exhaustive
 
             if (allowSaving != null)

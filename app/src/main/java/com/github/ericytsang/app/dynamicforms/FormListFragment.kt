@@ -15,6 +15,7 @@ import com.github.ericytsang.app.dynamicforms.databinding.ListItemFormBinding
 import com.github.ericytsang.app.dynamicforms.domainobjects.Form
 import com.github.ericytsang.app.dynamicforms.utils.getDrawableCompat
 import com.github.ericytsang.app.dynamicforms.utils.layoutInflater
+import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModelFactory
 
 
 class FormListFragment:Fragment()
@@ -27,7 +28,7 @@ class FormListFragment:Fragment()
     {
         val context = context!!
         val viewBinding = LayoutListWithFabBinding.inflate(inflater,container,false)
-        val viewModel = InjectorUtils.getMainActivityViewModel(activity!!)
+        val viewModel = (activity as MainActivityViewModelFactory).getMainActivityViewModel()
 
         val listener = object:FormViewHolder.Listener
         {
@@ -51,7 +52,7 @@ class FormListFragment:Fragment()
         viewBinding.fab.setImageDrawable(context.getDrawableCompat(R.drawable.ic_add_black_24dp))
         viewBinding.fab.setOnClickListener()
         {
-            viewModel.openNewFormForEditing()
+            viewModel.formDetailFragmentViewModel.openNewFormForEditing()
         }
 
         return viewBinding.root
