@@ -1,0 +1,23 @@
+[
+  {
+    "positionInForm": "0",
+    "label": "Name",
+    "isRequired": true,
+    "type": "text",
+    "value": "Eric Tsang"
+  },
+  {
+    "positionInForm": "1",
+    "label": "Github",
+    "isRequired": false,
+    "type": "text",
+    "value": "https://github.com/ericytsang"
+  },
+  {
+    "positionInForm": "1",
+    "label": "Stackoverflow",
+    "isRequired": false,
+    "type": "text",
+    "value": "http://stackoverflow.com/users/2898715/eric"
+  }
+]
