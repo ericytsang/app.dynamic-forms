@@ -58,6 +58,7 @@ abstract class TextFormFieldDao:FormFieldSubclassDao<TextFormFieldEntity>
     @Query("SELECT * FROM TextFormFieldEntity")
     abstract fun selectAll():List<TextFormFieldEntity>
 
+    // fixme: we're ignoring columns from the parent table
     @Query("""
         SELECT * FROM TextFormFieldEntity AS Child
             INNER JOIN FormFieldEntity AS Parent
@@ -91,6 +92,7 @@ abstract class DateFormFieldDao:FormFieldSubclassDao<DateFormFieldEntity>
     @Query("SELECT * FROM DateFormFieldEntity")
     abstract fun selectAll():List<DateFormFieldEntity>
 
+    // fixme: we're ignoring columns from the parent table
     @Query("""
         SELECT * FROM DateFormFieldEntity AS Child
             INNER JOIN FormFieldEntity AS Parent
