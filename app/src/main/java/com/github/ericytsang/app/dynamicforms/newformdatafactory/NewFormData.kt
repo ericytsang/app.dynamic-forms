@@ -1,4 +1,4 @@
-package com.github.ericytsang.app.dynamicforms.viewmodel
+package com.github.ericytsang.app.dynamicforms.newformdatafactory
 
 import com.github.ericytsang.app.dynamicforms.domainobjects.FormFieldReadData
 import com.github.ericytsang.app.dynamicforms.domainobjects.Url

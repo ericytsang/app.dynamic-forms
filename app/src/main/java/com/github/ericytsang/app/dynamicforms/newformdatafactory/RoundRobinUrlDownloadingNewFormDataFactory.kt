@@ -1,4 +1,4 @@
-package com.github.ericytsang.app.dynamicforms.viewmodel
+package com.github.ericytsang.app.dynamicforms.newformdatafactory
 
 import android.content.Context
 import android.graphics.Bitmap

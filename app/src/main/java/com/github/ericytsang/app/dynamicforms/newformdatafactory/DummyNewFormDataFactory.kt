@@ -1,11 +1,13 @@
-package com.github.ericytsang.app.dynamicforms.viewmodel
+package com.github.ericytsang.app.dynamicforms.newformdatafactory
 
 import com.github.ericytsang.app.dynamicforms.domainobjects.FormFieldReadData
 import com.github.ericytsang.app.dynamicforms.utils.Result
 
-class DummyNewFormDataFactory:NewFormDataFactory
+class DummyNewFormDataFactory:
+    NewFormDataFactory
 {
-    private val loremPicsum = LoremPicsum()
+    private val loremPicsum =
+        LoremPicsum()
     override fun make() =
         Result.Success<NewFormData,String>(
             NewFormData(

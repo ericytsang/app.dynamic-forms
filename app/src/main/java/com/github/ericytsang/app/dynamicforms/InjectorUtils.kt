@@ -6,9 +6,9 @@ import com.github.ericytsang.app.dynamicforms.domainobjects.Url
 import com.github.ericytsang.app.dynamicforms.repository.FormFieldRepo
 import com.github.ericytsang.app.dynamicforms.repository.FormRepo
 import com.github.ericytsang.app.dynamicforms.viewmodel.MainActivityViewModel
-import com.github.ericytsang.app.dynamicforms.viewmodel.NewFormDataFactory
-import com.github.ericytsang.app.dynamicforms.viewmodel.RoundRobinUrlDownloadingNewFormDataFactory
-import com.github.ericytsang.app.dynamicforms.viewmodel.RoundRobinUrlDownloadingNewFormDataFactory.Companion.Params
+import com.github.ericytsang.app.dynamicforms.newformdatafactory.NewFormDataFactory
+import com.github.ericytsang.app.dynamicforms.newformdatafactory.RoundRobinUrlDownloadingNewFormDataFactory
+import com.github.ericytsang.app.dynamicforms.newformdatafactory.RoundRobinUrlDownloadingNewFormDataFactory.Companion.Params
 import com.github.ericytsang.app.dynamicforms.viewmodel.FormDetailFragmentViewModel
 
 object InjectorUtils
