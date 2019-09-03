@@ -278,10 +278,16 @@ class MainActivityViewModel(
                 require(unsavedChanges == unsavedChanges.sortedBy {it.positionInForm})
             }
 
-            val hasBeenModified:Boolean
+            val canSave:Boolean
                 get()
                 {
-                    return original.formPk == null || original.formFields != unsavedChanges
+                    return {false}() ||
+                            // this is a new form
+                            (original.formPk == null ||
+                                    // or it has ben modified
+                                    original.formFields != unsavedChanges) &&
+                            // and all fields are valid
+                            unsavedChanges.all {it.isValid}
                 }
         }
     }

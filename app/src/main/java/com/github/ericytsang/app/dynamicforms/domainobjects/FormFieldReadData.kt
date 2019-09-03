@@ -114,6 +114,18 @@ sealed class FormFieldReadData
         }
     }
 
+    /**
+     * returns a string if invalid; null otherwise.
+     */
+    val isValid:Boolean get()
+    {
+        return when(this)
+        {
+            is Text -> FormField.Values.Text.isValid(formFieldIsRequired,formFieldValue)
+            is Date -> FormField.Values.Date.isValid(formFieldIsRequired,formFieldValue)
+        }
+    }
+
     abstract val positionInForm:Int
     abstract val formFieldLabel:String
     abstract val formFieldIsRequired:Boolean

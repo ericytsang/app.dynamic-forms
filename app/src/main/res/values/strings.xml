@@ -7,6 +7,8 @@
     <string name="main_activity_vm__no_description"><![CDATA[<No description>]]></string>
     <string name="main_activity_vm__saved">Saved!</string>
 
+    <string name="field_is_required">\"%s\" is required</string>
+
     <string name="form_field_read_data__no_date_set"><![CDATA[<no date set>]]></string>
 
 </resources>

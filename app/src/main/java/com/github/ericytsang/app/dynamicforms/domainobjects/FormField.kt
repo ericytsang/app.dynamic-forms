@@ -78,12 +78,17 @@ sealed class FormField
         ):
             FormField.Values()
         {
-            // todo: i wonder if this is possible.....
-            //  it might pose a problem when we want to create VMs for a form....
-            //  but in that particular case, maybe we should create a different kind of class
+            companion object
+            {
+                fun isValid(isRequired:Boolean,userInput:String):Boolean
+                {
+                    return !isRequired || userInput.isNotBlank()
+                }
+            }
+
             init
             {
-                require(!(isRequired && userInput.isBlank()))
+                require(isValid(isRequired,userInput))
             }
 
             fun toTextFormFieldEntityValues() = TextFormFieldEntity.Values(userInput)
@@ -100,12 +105,17 @@ sealed class FormField
         ):
             FormField.Values()
         {
-            // todo: i wonder if this is possible.....
-            //  it might pose a problem when we want to create VMs for a form....
-            //  but in that particular case, maybe we should create a different kind of class
+            companion object
+            {
+                fun isValid(isRequired:Boolean,userInput:Calendar?):Boolean
+                {
+                    return !isRequired || userInput != null
+                }
+            }
+
             init
             {
-                require(!(isRequired && userInput != null))
+                require(isValid(isRequired,userInput))
             }
 
             fun toDateFormFieldEntityValues() = DateFormFieldEntity.Values(userInput?.timeInMillis)

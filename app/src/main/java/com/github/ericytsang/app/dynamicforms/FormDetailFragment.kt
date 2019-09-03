@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.ericytsang.app.dynamicforms.databinding.LayoutListWithFabBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemDateFormFieldBinding
 import com.github.ericytsang.app.dynamicforms.databinding.ListItemTextFormFieldBinding
+import com.github.ericytsang.app.dynamicforms.domainobjects.FormField
 import com.github.ericytsang.app.dynamicforms.domainobjects.FormFieldReadData
 import com.github.ericytsang.app.dynamicforms.utils.StructEqualityAdapter
 import com.github.ericytsang.app.dynamicforms.utils.TextWatcherAdapter
@@ -87,7 +88,7 @@ class FormDetailFragment:Fragment()
             val allowSaving = when (it)
             {
                 MainActivityViewModel.FormDetailState.Idle -> null
-                is MainActivityViewModel.FormDetailState.Edit -> if (it.hasBeenModified) it else null
+                is MainActivityViewModel.FormDetailState.Edit -> if (it.canSave) it else null
             }.exhaustive
 
             if (allowSaving != null)
@@ -213,8 +214,27 @@ private sealed class FormFieldViewHolder(view:View):RecyclerView.ViewHolder(view
         {
             afterTextChangedDelegate = fun(s:Editable?)
             {
-                listener.onChanged(model.copy(formFieldValue = s.toString()))
+                val newModel = model.copy(formFieldValue = s.toString())
+
+                // validate & update UI with validation info
+                viewBinding.editText.error = if (!newModel.isValid)
+                {
+                    viewBinding.root.context.getString(R.string.field_is_required, model.formFieldLabel)
+                }
+                else
+                {
+                    null
+                }
+
+                // publish updates to listeners
+                listener.onChanged(newModel)
+
+            }.apply() // initialize UI
+            {
+                invoke(viewBinding.editText.text)
             }
+
+            // bind model data to view
             viewBinding.apply()
             {
                 layout.hint = model.formFieldLabel
