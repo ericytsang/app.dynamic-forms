@@ -1,5 +1,7 @@
 package com.github.ericytsang.app.dynamicforms.domainobjects
 
+import android.content.Context
+import com.github.ericytsang.app.dynamicforms.R
 import com.github.ericytsang.app.dynamicforms.database.FormEntity
 import org.json.JSONObject
 import java.util.Calendar
@@ -102,15 +104,15 @@ sealed class FormFieldReadData
     /**
      * returns the user's input as a string to show to user.
      */
-    val userInputAsString:String
-        get()
+    fun userInputAsString(context:Context):String
+    {
+        return when (this)
         {
-            return when (this)
-            {
-                is Text -> formFieldValue
-                is Date -> formFieldValue?.toString() ?: "<no date set>"
-            }
+            is Text -> formFieldValue
+            is Date -> formFieldValue?.toString()
+                ?: context.getString(R.string.form_field_read_data__no_date_set)
         }
+    }
 
     abstract val positionInForm:Int
     abstract val formFieldLabel:String

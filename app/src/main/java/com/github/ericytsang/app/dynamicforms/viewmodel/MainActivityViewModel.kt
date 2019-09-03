@@ -412,9 +412,9 @@ class MainActivityViewModel(
                         val pk = formRepo.create(
                             Form.Values(
                                 toSave.original.imageUrl,
-                                toSave.unsavedChanges.getOrNull(0)?.userInputAsString
+                                toSave.unsavedChanges.getOrNull(0)?.userInputAsString(context)
                                     ?: context.getString(R.string.main_activity_vm__no_title),
-                                toSave.unsavedChanges.getOrNull(1)?.userInputAsString
+                                toSave.unsavedChanges.getOrNull(1)?.userInputAsString(context)
                                     ?: context.getString(R.string.main_activity_vm__no_description)
                             )
                         )
