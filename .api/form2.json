@@ -14,7 +14,7 @@
     "value": "https://github.com/ericytsang"
   },
   {
-    "positionInForm": "1",
+    "positionInForm": "2",
     "label": "Stackoverflow",
     "isRequired": false,
     "type": "text",
