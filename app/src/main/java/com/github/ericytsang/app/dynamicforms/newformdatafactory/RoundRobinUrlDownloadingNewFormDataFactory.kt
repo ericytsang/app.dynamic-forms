@@ -16,7 +16,8 @@ import com.github.ericytsang.app.dynamicforms.utils.indices
 import org.json.JSONArray
 import java.util.concurrent.ArrayBlockingQueue
 
-class RoundRobinUrlDownloadingNewFormDataFactory(
+class RoundRobinUrlDownloadingNewFormDataFactory
+private constructor(
 
     /**
      * some [Url]s that when HTTP GET, should return a JSON array that can be parsed into
@@ -24,9 +25,6 @@ class RoundRobinUrlDownloadingNewFormDataFactory(
      */
     val getUrls:List<Url>,
 
-    /**
-     * app [Context]
-     */
     _context:Context
 ):
     NewFormDataFactory

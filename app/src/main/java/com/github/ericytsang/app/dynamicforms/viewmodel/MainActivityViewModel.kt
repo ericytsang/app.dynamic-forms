@@ -145,8 +145,7 @@ class MainActivityViewModel(
 
     // view model for the form details fragment (list of form fields)
 
-    val formDetailFragmentViewModel =
-        FormDetailFragmentViewModel(
+    val formDetailFragmentViewModel = FormDetailFragmentViewModel(
             db,
             formRepo,
             formFieldRepo,

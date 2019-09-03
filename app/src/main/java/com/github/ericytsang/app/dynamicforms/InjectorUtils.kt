@@ -33,8 +33,7 @@ object InjectorUtils
         return RoundRobinUrlDownloadingNewFormDataFactory.factory.getInstance(
             Params(
                 listOf(
-                    Url("https://raw.githubusercontent.com/ericytsang/app.dynamic-forms/master/.api/form1.json"),
-                    Url("https://raw.githubusercontent.com/ericytsang/app.dynamic-forms/master/.api/form2.json")
+                    Url("https://raw.githubusercontent.com/ericytsang/app.dynamic-forms/master/.api/form1.json")
                 ),
                 context
             )
