@@ -40,8 +40,8 @@ class FormRepo(
         return dao.insert(formValues.toEntity())
     }
 
-    fun update(form:Form)
+    fun create(form:Form)
     {
-        dao.update(form.toEntity())
+        dao.insert(form.toEntity())
     }
 }

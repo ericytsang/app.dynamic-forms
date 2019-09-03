@@ -101,7 +101,13 @@ class MainActivityViewModel(
                 sortingMode // todo use to determine how we query the formRepo
                 val selectedItems = listOfNotNull(selection).toSet()
                 combined.value = forms
-                    ?.map {FormViewHolderModel(it,it.pk in selectedItems,null/* todo set the bitmap */)}
+                    ?.map {
+                        FormViewHolderModel(
+                            it,
+                            it.pk in selectedItems,
+                            null/* todo set the bitmap */
+                        )
+                    }
                     ?: listOf()
                 return this
             }
@@ -248,7 +254,7 @@ class MainActivityViewModel(
                         }
                 }
                 .postExecute {
-                    when(it)
+                    when (it)
                     {
                         is Result.Success -> _formDetails.value = it.success
                         is Result.Failure -> debugLog {it.failure}
@@ -276,27 +282,45 @@ class MainActivityViewModel(
                 .background {
                     db.runInTransaction<FormEntity.Pk>()
                     {
-                        // delete old form
-                        if (toSave.original.formPk != null)
-                        {
-                            formRepo.delete(toSave.original.formPk)
-                        }
-
-                        // save form
-                        val pk = formRepo.create(
-                            Form.Values(
-                                toSave.original.imageUrl,
-                                toSave.unsavedChanges.getOrNull(0)?.userInputAsString(context)
-                                    ?: context.getString(R.string.main_activity_vm__no_title),
-                                toSave.unsavedChanges.getOrNull(1)?.userInputAsString(context)
-                                    ?: context.getString(R.string.main_activity_vm__no_description)
-                            )
+                        val formValues = Form.Values(
+                            toSave.original.imageUrl,
+                            toSave.unsavedChanges.getOrNull(0)?.userInputAsString(context)
+                                ?: context.getString(R.string.main_activity_vm__no_title),
+                            toSave.unsavedChanges.getOrNull(1)?.userInputAsString(context)
+                                ?: context.getString(R.string.main_activity_vm__no_description)
                         )
 
-                        // save form fields
-                        toSave.unsavedChanges.forEach {formFieldRepo.create(it.toModel(pk))}
+                        // save a new form
+                        if (toSave.original.formPk == null)
+                        {
+                            // save form
+                            val pk = formRepo.create(formValues)
 
-                        return@runInTransaction pk
+                            // save form fields
+                            toSave.unsavedChanges.forEach {formFieldRepo.create(it.toModel(pk))}
+
+                            return@runInTransaction pk
+                        }
+
+                        // update an existing form otherwise
+                        else
+                        {
+                            val pk = toSave.original.formPk
+
+                            // delete old form
+                            formRepo.delete(pk)
+
+                            // save form
+                            formRepo.create(Form(pk,formValues))
+
+                            // save form fields
+                            toSave.unsavedChanges.forEach()
+                            {
+                                formFieldRepo.create(it.toModel(pk))
+                            }
+
+                            toSave.original.formPk
+                        }
                     }
                 }
                 .postExecute {

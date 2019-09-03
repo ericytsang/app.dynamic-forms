@@ -1,6 +1,5 @@
 package com.github.ericytsang.app.dynamicforms.database
 
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
@@ -15,6 +14,9 @@ abstract class FormDao
     @Insert(entity = FormEntity::class)
     protected abstract fun _insert(values:FormEntity.Values):Long
     fun insert(values:FormEntity.Values) = FormEntity.Pk(_insert(values))
+
+    @Insert(entity = FormEntity::class,onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insert(form:FormEntity)
 
     // todo: paging
     @Query("SELECT * FROM FormEntity")
